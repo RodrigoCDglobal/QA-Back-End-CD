@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "4cfed8b4-8270-45dd-8be2-4b30cc689301",
+		"name": "amx_metadata_integration copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-4cfed8b4-8270-45dd-8be2-4b30cc689301?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "places/{USER_ID} Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_metadata_integration/api/v1/places/{{USER_ID}}",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_metadata_integration",
+						"api",
+						"v1",
+						"places",
+						"{{USER_ID}}"
+					]
+				},
+				"description": "Este servicio permite encontrar los lugares donde el usuario tiene archivos, y cuántos.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/1363968062/GET+amx+metadata+integration+api+v1+places+uid+User+Places)\n\nPresente en los siguientes casos de prueba: [Filtro en Jira](https://dlatvarg.atlassian.net/issues/?filter=54292&jql=key%20IN%20(CDBS-7865%2C%20CDBS-7864%2C%20CDBS-7863)%20AND%20project%20%3D%20CDBS%20AND%20type%20%3D%20Test%20AND%20labels%20IN%20(Actualizaci%C3%B3n%2C%20amx_activity)%20AND%20labels%20NOT%20IN%20(Deprecado%2C%20deprecad%2C%20Revision_QA%2C%20Revisi%C3%B3n_QA)%20ORDER%20BY%20summary%20ASC)"
+			},
+			"response": []
+		},
+		{
+			"name": "places/{{USER_ID}}/files/metadata Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"place\": \"Estado de México, México\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_metadata_integration/api/v1/places/{{USER_ID}}/files/metadata",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_metadata_integration",
+						"api",
+						"v1",
+						"places",
+						"{{USER_ID}}",
+						"files",
+						"metadata"
+					]
+				},
+				"description": "Este servicio permite encontrar todas las fotos de un lugar específico.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/1363247198/POST+amx+metadata+integration+api+v1+places+uid+files+metadata+Pictures+from+one+place)\n\n[Caso de prueba en Jira](https://dlatvarg.atlassian.net/browse/CDBS-7961)"
+			},
+			"response": []
+		},
+		{
+			"name": "places/{{USER_ID}}/files Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"place\": \"Estado de México, México\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_metadata_integration/api/v1/places/{{USER_ID}}/files",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_metadata_integration",
+						"api",
+						"v1",
+						"places",
+						"{{USER_ID}}",
+						"files"
+					]
+				},
+				"description": "Este servicio permite obtener todas las imagenes para un lugar específico (IDs de archivo)\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/1363738656/POST+amx+metadata+integration+api+v1+places+uid+files+Place+File+from+user)\n\n[Caso de prueba en Jira](https://dlatvarg.atlassian.net/browse/CDBS-7962)"
+			},
+			"response": []
+		}
+	]
+}

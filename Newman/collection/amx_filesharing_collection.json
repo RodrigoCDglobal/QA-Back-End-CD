@@ -1,0 +1,1179 @@
+{
+	"info": {
+		"_postman_id": "e5eebe1b-1644-4ab8-907c-02e6033b74c6",
+		"name": "amx_filesharing copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-e5eebe1b-1644-4ab8-907c-02e6033b74c6?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "api/v3/shares (crear comparticiones) copia",
+			"item": [
+				{
+					"name": "api/v3/shares (masivo) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"object\")\r",
+									"    pm.expect(jsonData.ocs.data.share_entity).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.share_entity.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"file_id\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_mimetype\").that.is.a(\"string\")\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\").that.is.oneOf([0, 3, 4, 6, 100])\r",
+									"        pm.expect(dataItem).to.have.property(\"share_time\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_permissions\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"original_share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with_displayname\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"\r",
+									"        if (dataItem.hasOwnProperty(\"massive_share_name\")) pm.expect(dataItem).to.have.property(\"massive_share_name\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        \r",
+									"        pm.expect(dataItem).to.have.property(\"dynamic_link\").that.is.an(\"object\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"previewLink\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"shortLink\")\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"// Almacenar ID de la compartición creada en una variable de colección (para su uso en el resto de servicios de compartición)\r",
+									"pm.test(\"Almacenar ID de la compartición creada en una variable de colección\", function() {\r",
+									"    pm.collectionVariables.set(\"DUMMY_SHARE_ID\", ocsData.share_entity[0].share_id)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"massive_share_name\": \"Una gran compartición\",\r\n    \"massive_files_id\": {{DUMMY_FILES_IDS}},\r\n    \"share_type\": 100\r\n\r\n    // \"share_permissions\": 1,\r\n    // \"share_expiration\": 1722405600000, // 31 de julio del 2024 (GMT-0) (ejemplo)\r\n    // \"share_password\":\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v3/shares?format=json",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v3",
+								"shares"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api/v3/shares (archivo) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"object\")\r",
+									"    pm.expect(jsonData.ocs.data.share_entity).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.share_entity.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"file_id\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_mimetype\").that.is.a(\"string\")\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\").that.is.oneOf([0, 3, 4, 6, 100])\r",
+									"        pm.expect(dataItem).to.have.property(\"share_time\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_permissions\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"original_share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with_displayname\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"\r",
+									"        if (dataItem.hasOwnProperty(\"massive_share_name\")) pm.expect(dataItem).to.have.property(\"massive_share_name\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        \r",
+									"        pm.expect(dataItem).to.have.property(\"dynamic_link\").that.is.an(\"object\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"previewLink\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"shortLink\")\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"// Almacenar ID de la compartición creada en una variable de colección (para su uso en el resto de servicios de compartición)\r",
+									"pm.test(\"Almacenar ID de la compartición creada en una variable de colección\", function() {\r",
+									"    pm.collectionVariables.set(\"DUMMY_SHARE_ID\", ocsData.share_entity[0].share_id)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "file_id",
+									"value": "{{DUMMY_FILE_ID}}",
+									"description": "ID del archivo para compartir",
+									"type": "text"
+								},
+								{
+									"key": "share_type",
+									"value": "3",
+									"description": "3 = link",
+									"type": "text"
+								},
+								{
+									"key": "share_permissions",
+									"value": "1",
+									"description": "Permisos para la compartición\n1 = Solo lectura\n4 = Edición",
+									"type": "text"
+								},
+								{
+									"key": "share_expiration",
+									"value": "1722405600000",
+									"description": "31 de julio del 2024 (GMT-0) (ejemplo)\nEl campo no permite horas, todo es a la media noche.",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "share_password",
+									"value": "",
+									"description": "Contraseña para la compartición",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v3/shares?format=json",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v3",
+								"shares"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api/v3/shares (carpeta) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"object\")\r",
+									"    pm.expect(jsonData.ocs.data.share_entity).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.share_entity.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"file_id\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_mimetype\").that.is.a(\"string\")\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\").that.is.oneOf([0, 3, 4, 6, 100])\r",
+									"        pm.expect(dataItem).to.have.property(\"share_time\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_permissions\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"original_share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with_displayname\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"\r",
+									"        if (dataItem.hasOwnProperty(\"massive_share_name\")) pm.expect(dataItem).to.have.property(\"massive_share_name\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        \r",
+									"        pm.expect(dataItem).to.have.property(\"dynamic_link\").that.is.an(\"object\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"previewLink\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"shortLink\")\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"// Almacenar ID de la compartición creada en una variable de colección (para su uso en el resto de servicios de compartición)\r",
+									"pm.test(\"Almacenar ID de la compartición creada en una variable de colección\", function() {\r",
+									"    pm.collectionVariables.set(\"DUMMY_SHARE_ID\", ocsData.share_entity[0].share_id)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "file_id",
+									"value": "{{DUMMY_FILES_FOLDER_ID}}",
+									"description": "ID del la carpeta para compartir",
+									"type": "text"
+								},
+								{
+									"key": "share_type",
+									"value": "3",
+									"description": "3 = link",
+									"type": "text"
+								},
+								{
+									"key": "share_permissions",
+									"value": "1",
+									"description": "Permisos para la compartición\n1 = Solo lectura\n4 = Edición\n15 = Edición y carga de archivos",
+									"type": "text"
+								},
+								{
+									"key": "share_expiration",
+									"value": "1722405600000",
+									"description": "31 de julio del 2024 (GMT-0) (ejemplo)\nEl campo no permite horas, todo es a la media noche.",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "share_password",
+									"value": "ypv7Fh2tYwl",
+									"description": "Contraseña para la compartición",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v3/shares?format=json",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v3",
+								"shares"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api/v2/shares (alterar comparticiones) copia",
+			"item": [
+				{
+					"name": "api/v2/shares (ver compartición) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"object\")\r",
+									"    pm.expect(jsonData.ocs.data.share_entity).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.share_entity.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"file_id\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_mimetype\").that.is.a(\"string\")\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\").that.is.oneOf([0, 3, 4, 6, 100])\r",
+									"        pm.expect(dataItem).to.have.property(\"share_time\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_permissions\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"original_share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with_displayname\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"\r",
+									"        if (dataItem.hasOwnProperty(\"massive_share_name\")) pm.expect(dataItem).to.have.property(\"massive_share_name\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        \r",
+									"        pm.expect(dataItem).to.have.property(\"dynamic_link\").that.is.an(\"object\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"previewLink\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"shortLink\")\r",
+									"    })\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIREQUEST",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v2/shares/{{DUMMY_SHARE_ID}}?format=json",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v2",
+								"shares",
+								"{{DUMMY_SHARE_ID}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api/v2/shares (ver comparticiones de un elemento) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"object\")\r",
+									"    pm.expect(jsonData.ocs.data.share_entity).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.share_entity.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"file_id\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_mimetype\").that.is.a(\"string\")\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\").that.is.oneOf([0, 3, 4, 6, 100])\r",
+									"        pm.expect(dataItem).to.have.property(\"share_time\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_permissions\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"original_share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"share_with_displayname\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"\r",
+									"        if (dataItem.hasOwnProperty(\"massive_share_name\")) pm.expect(dataItem).to.have.property(\"massive_share_name\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        \r",
+									"        pm.expect(dataItem).to.have.property(\"dynamic_link\").that.is.an(\"object\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"previewLink\")\r",
+									"        pm.expect(dataItem.dynamic_link).to.contain.property(\"shortLink\")\r",
+									"    })\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIREQUEST",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v2/shares?format=json&file_id={{DUMMY_FILE_ID}}",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v2",
+								"shares"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "file_id",
+									"value": "{{DUMMY_FILE_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api/v2/shares (editar compartición) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"object\")\r",
+									"    pm.expect(jsonData.ocs.data.share_entity).to.be.an(\"object\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en el elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en el elemento compartido\", function() {\r",
+									"    const dataItem = ocsData.share_entity\r",
+									"\r",
+									"    pm.expect(dataItem).to.have.property(\"file_id\").that.is.a(\"number\")\r",
+									"    pm.expect(dataItem).to.have.property(\"file_name\").that.is.a(\"string\")\r",
+									"    pm.expect(dataItem).to.have.property(\"file_path\").that.is.a(\"string\")\r",
+									"    pm.expect(dataItem).to.have.property(\"file_mimetype\").that.is.a(\"string\")\r",
+									"\r",
+									"    pm.expect(dataItem).to.have.property(\"share_id\").that.is.a(\"string\")\r",
+									"    pm.expect(dataItem).to.have.property(\"share_type\").that.is.oneOf([0, 3, 4, 6, 100])\r",
+									"    pm.expect(dataItem).to.have.property(\"share_time\").that.is.a(\"number\")\r",
+									"    pm.expect(dataItem).to.have.property(\"share_permissions\").that.is.a(\"number\")\r",
+									"    pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"\r",
+									"    pm.expect(dataItem).to.have.property(\"share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"    pm.expect(dataItem).to.have.property(\"original_share_url\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"    pm.expect(dataItem).to.have.property(\"share_with\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"    pm.expect(dataItem).to.have.property(\"share_with_displayname\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"\r",
+									"    pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"    pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"\r",
+									"    if (dataItem.hasOwnProperty(\"massive_share_name\")) pm.expect(dataItem).to.have.property(\"massive_share_name\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"    \r",
+									"    pm.expect(dataItem).to.have.property(\"dynamic_link\").that.is.an(\"object\")\r",
+									"    pm.expect(dataItem.dynamic_link).to.contain.property(\"previewLink\")\r",
+									"    pm.expect(dataItem.dynamic_link).to.contain.property(\"shortLink\")\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "share_permissions",
+									"value": "1",
+									"description": "Permisos para la compartición\nArchivos\n1 = Solo lectura\n3 = Edición\n\nCarpetas\n1 = Solo lectura\n4 = Edición\n15 = Edición y carga de archivos",
+									"type": "text"
+								},
+								{
+									"key": "share_expiration",
+									"value": "1722405600000",
+									"description": "31 de julio del 2024 (GMT-0) (ejemplo)\nEl campo no permite horas, todo es a la media noche.",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "share_expiration",
+									"value": "",
+									"description": "Quitar expiración",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "share_password",
+									"value": "",
+									"description": "Contraseña para la compartición",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v2/shares/{{DUMMY_SHARE_ID}}?format=json",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v2",
+								"shares",
+								"{{DUMMY_SHARE_ID}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api/v2/shares (eliminar compartición) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+									"    method : \"GET\"\r",
+									"}, (error, response) => {\r",
+									"    let jsonData = response.json()\r",
+									"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"delete_success\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"array\").that.is.empty\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{CSRF}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v2/shares/{{DUMMY_SHARE_ID}}?format=json",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v2",
+								"shares",
+								"{{DUMMY_SHARE_ID}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api/v4/shares (listar comparticiones) Copia",
+			"item": [
+				{
+					"name": "api/v4/shares (with_me=false) Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\")\r",
+									"        if (dataItem.share_type_share) pm.expect(dataItem).to.have.property(\"share_type_share\").that.is.a(\"number\")\r",
+									"        if (dataItem.uid_owner) pm.expect(dataItem).to.have.property(\"uid_owner\").that.is.a(\"string\")\r",
+									"        if (dataItem.displayname_owner) pm.expect(dataItem).to.have.property(\"displayname_owner\").that.is.a(\"string\")\r",
+									"        if (dataItem.displayemail_owner) pm.expect(dataItem).to.have.property(\"displayemail_owner\").that.is.a(\"string\")\r",
+									"        if (dataItem.permissions) pm.expect(dataItem).to.have.property(\"permissions\").that.is.a(\"number\")\r",
+									"        if (dataItem.permissions_file) pm.expect(dataItem).to.have.property(\"permissions_file\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"stime\").that.is.a(\"number\")\r",
+									"        if (dataItem.expiration) pm.expect(dataItem).to.have.property(\"parent\").that.is.null\r",
+									"        if (dataItem.expiration) pm.expect(dataItem).to.have.property(\"expiration\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        if (dataItem.share_expiration) pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"        if (dataItem.file_share_expiration) pm.expect(dataItem).to.have.property(\"file_share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        if (dataItem.file_share_password) pm.expect(dataItem).to.have.property(\"file_share_password\").that.is.a(\"boolean\")\r",
+									"        /*pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"etag\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"lastModified_file\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"createdate_file\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"item_type\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"mimetype\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"storage_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"storage\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"item_source\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_source\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_parent\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_target\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"mail_send\").that.is.oneOf([0, 1])\r",
+									"        pm.expect(dataItem).to.have.property(\"name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"tags\").that.is.an(\"array\")*/\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"// Validar permisos en cada elemento compartido\r",
+									"pm.test(\"Validar permisos en cada elemento compartido\", function() {\r",
+									"    ocsData.forEach((dataItem) => {\r",
+									"        if (dataItem.permissions) pm.expect(dataItem.permissions).to.be.oneOf([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) // Esto no lo entiendo[4, 1, 2, 8, 16, 31])\r",
+									"        if (dataItem.permissions_file) pm.expect(dataItem.permissions_file).to.match(/^(S|R|M|G|D|NV|W|CK)*$/i)\r",
+									"    })\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIREQUEST",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v4/shares?format=json&with_me=false&offset=0",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v4",
+								"shares"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "with_me",
+									"value": "false",
+									"description": "Comparticiones por mí (false) o conmigo (true)"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api/v4/shares (with_me=true) Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json()\r",
+									"const ocsData = jsonData.ocs.data\r",
+									"\r",
+									"// El servidor responde con un código HTTP 200\r",
+									"pm.test(\"Código de estado es 200\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"// Validar la estructura de la respuesta, relativa a la documentación\r",
+									"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+									"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+									"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(100)\r",
+									"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+									"    pm.expect(jsonData.ocs.data).to.be.an(\"array\")\r",
+									"})\r",
+									"\r",
+									"// Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido (detallados en la documentación y los casos de prueba)\r",
+									"pm.test(\"Validar existencia y tipo de dato de los parámetros esperados en cada elemento compartido\", function() {\r",
+									"    ocsData.forEach((dataItem) => {\r",
+									"        pm.expect(dataItem).to.have.property(\"id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"share_type\")\r",
+									"        if (dataItem.share_type_share) pm.expect(dataItem).to.have.property(\"share_type_share\").that.is.a(\"number\")\r",
+									"        if (dataItem.uid_owner) pm.expect(dataItem).to.have.property(\"uid_owner\").that.is.a(\"string\")\r",
+									"        if (dataItem.displayname_owner) pm.expect(dataItem).to.have.property(\"displayname_owner\").that.is.a(\"string\")\r",
+									"        if (dataItem.displayemail_owner) pm.expect(dataItem).to.have.property(\"displayemail_owner\").that.is.a(\"string\")\r",
+									"        if (dataItem.permissions) pm.expect(dataItem).to.have.property(\"permissions\").that.is.a(\"number\")\r",
+									"        if (dataItem.permissions_file) pm.expect(dataItem).to.have.property(\"permissions_file\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"stime\").that.is.a(\"number\")\r",
+									"        if (dataItem.expiration) pm.expect(dataItem).to.have.property(\"parent\").that.is.null\r",
+									"        if (dataItem.expiration) pm.expect(dataItem).to.have.property(\"expiration\").and.to.satisfy((value) => typeof value === \"string\" || value === null)\r",
+									"        if (dataItem.share_expiration) pm.expect(dataItem).to.have.property(\"share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"        if (dataItem.file_share_expiration) pm.expect(dataItem).to.have.property(\"file_share_expiration\").and.to.satisfy((value) => typeof value === \"number\" || value === null)\r",
+									"        pm.expect(dataItem).to.have.property(\"has_password\").that.is.a(\"boolean\")\r",
+									"        if (dataItem.file_share_password) pm.expect(dataItem).to.have.property(\"file_share_password\").that.is.a(\"boolean\")\r",
+									"        /*pm.expect(dataItem).to.have.property(\"size\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"etag\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"lastModified_file\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"createdate_file\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"path\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"item_type\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"mimetype\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"storage_id\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"storage\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"item_source\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_source\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_parent\").that.is.a(\"number\")\r",
+									"        pm.expect(dataItem).to.have.property(\"file_target\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"mail_send\").that.is.oneOf([0, 1])\r",
+									"        pm.expect(dataItem).to.have.property(\"name\").that.is.a(\"string\")\r",
+									"        pm.expect(dataItem).to.have.property(\"tags\").that.is.an(\"array\")*/\r",
+									"    })\r",
+									"})\r",
+									"\r",
+									"// Validar permisos en cada elemento compartido\r",
+									"pm.test(\"Validar permisos en cada elemento compartido\", function() {\r",
+									"    ocsData.forEach((dataItem) => {\r",
+									"        if (dataItem.permissions) pm.expect(dataItem.permissions).to.be.oneOf([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]) // Esto no lo entiendo[4, 1, 2, 8, 16, 31])\r",
+									"        if (dataItem.permissions_file) pm.expect(dataItem.permissions_file).to.match(/^(S|R|M|G|D|NV|W|CK)*$/i)\r",
+									"    })\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "OCS-APIREQUEST",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{instance}}/ocs/v1.php/apps/amx_filesharing/api/v4/shares?format=json&with_me=true&offset=0",
+							"host": [
+								"{{instance}}"
+							],
+							"path": [
+								"ocs",
+								"v1.php",
+								"apps",
+								"amx_filesharing",
+								"api",
+								"v4",
+								"shares"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								},
+								{
+									"key": "with_me",
+									"value": "true"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

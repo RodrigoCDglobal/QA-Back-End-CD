@@ -1,0 +1,372 @@
+{
+	"info": {
+		"_postman_id": "e9f465ee-17fa-439c-8974-020b8bb439b7",
+		"name": "amx_ping_middleware copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-e9f465ee-17fa-439c-8974-020b8bb439b7?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "ping 200 Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = \r",
+							"{\r",
+							"    \"ocs\": {\r",
+							"        \"meta\": {\r",
+							"            \"status\": {\"type\": \"string\"},\r",
+							"            \"statuscode\": {\"type\": \"string\"},\r",
+							"            \"message\": {\"type\": \"string\"}\r",
+							"        },\r",
+							"        \"data\": {\r",
+							"            \"data\": {\r",
+							"                \"adminFamilyPlan\": {\"type\": \"string\"},\r",
+							"                \"hasFamilyPlan\": {\"type\": \"boolean\"},\r",
+							"                \"notifications\": {\"type\": \"array\"}, // revisar el tipo\r",
+							"                \"extraInfo\": {\r",
+							"                    \"socialdata\": [\r",
+							"                        {\r",
+							"                            \"social_user_id\": {\"type\": \"string\"}, // nombres diferentes en documentación\r",
+							"                            \"social_network\": {\"type\": \"string\"}\r",
+							"                        }\r",
+							"                    ]\r",
+							"                },\r",
+							"                \"user\": {\r",
+							"                    \"id\": {\"type\": \"string\"},\r",
+							"                    \"email\": {\"type\": \"string\"},\r",
+							"                    \"language\": {\"type\": \"string\"}, // no esta en documentación\r",
+							"                    \"status\": {\"type\": \"string\"},\r",
+							"                    \"region\": {\"type\": \"string\"},\r",
+							"                    \"is_new\": {\"type\": \"boolean\"}, // no se encuentra\r",
+							"                    \"family_plan_enabled\": {\"type\": \"string\"}, // no en documenración\r",
+							"                    \"user_status\": {\r",
+							"                        \"status\": {\"type\": \"string\"},\r",
+							"                        \"last_active_date\": {\"type\": \"string\"},\r",
+							"                        \"termination_origin\": {\"type\": \"number\"}\r",
+							"                    },\r",
+							"                    \"session_userhash\": {\"type\": \"string\"},\r",
+							"                    \"clarodriveId\": {\"type\": \"number\"}, // en documentacion esta como ID\r",
+							"                    \"user_display_name\": {\"type\": \"string\"},\r",
+							"                    \"profile_picture\": \"\", // no tiene tipo de dato\r",
+							"                    \"country_code\": {\"type\": \"string\"},\r",
+							"                    \"fixed_number\": {\"type\": \"string\"},\r",
+							"                    \"mobile_number\": {\"type\": \"string\"},\r",
+							"                    \"updateable\": \"\", // no se encuentra en documentación\r",
+							"                    \"hasValidPayway\": {\"type\": \"number\"},\r",
+							"                    \"HKS\": {\"type\": \"string\"},\r",
+							"                    \"isVip\": {\"type\": \"boolean\"},\r",
+							"                    \"acceptedTerms\": {\"type\": \"boolean\"}, // no se encuentra\r",
+							"                    \"last_authentication_type\": \"\", // no esta en documentación\r",
+							"                    \"provider\": {\"type\": \"string\"},\r",
+							"                    \"encoded_region\": {\"type\": \"string\"}\r",
+							"                },\r",
+							"                \"subscription\": {\r",
+							"                    \"id\": {\"type\": \"string\"},\r",
+							"                    \"product\": {\r",
+							"                        \"quota\": {\"type\": \"number\"},\r",
+							"                        \"type\": {\"type\": \"string\"}, // No se encuentra en documentación\r",
+							"                        \"product_name\": {\"type\": \"string\"},\r",
+							"                        \"price\": {\"type\": \"number\"},\r",
+							"                        \"currency\": {\"type\": \"string\"},\r",
+							"                        \"id\": {\"type\": \"number\"},\r",
+							"                        \"purchase_data\": {\r",
+							"                            \"paymentMethod\": {\"type\": \"string\"},\r",
+							"                            \"gateway_text\": {\"type\": \"string\"},\r",
+							"                            \"begining\": {\"type\": \"string\"}, //Tipo date\r",
+							"                            \"expiration\": {\"type\": \"string\"}, // Tipo date\r",
+							"                            \"in_promo\": {\"type\": \"number\"},\r",
+							"                            \"expiration_promo\": {\"type\": \"string\"},//Tipo date en documentación\r",
+							"                            \"in_process_cancelled\": {\"type\": \"number\"},\r",
+							"                            \"purchase_id\": {\"type\": \"string\"},\r",
+							"                            \"purchase_checked\": {\"type\": \"number\"}\r",
+							"                        },\r",
+							"                        \"payment_methods\": [\r",
+							"                            {\r",
+							"                                \"gateway\": {\"type\": \"number\"}, // posible\r",
+							"                                \"gateway_text\": {\"type\": \"string\"},\r",
+							"                                \"account_data\": {\r",
+							"                                    \"account\": {\"type\": \"string\"}, // no se encuentra ek tipo en documentación\r",
+							"                                    \"status\": {\"type\": \"string\"}, // no se encuentra ek tipo en documentación\r",
+							"                                    \"user_product_id\": {\"type\": \"string\"} // no se encuentra ek tipo en documentación\r",
+							"                                }\r",
+							"                            }\r",
+							"                        ],\r",
+							"                        \"plan_quota\": {\"type\": \"number\"} , // no seencuentra en docmuentación\r",
+							"                        \"usedQuota\": {\"type\": \"number\"} \r",
+							"                    },\r",
+							"                    \"user_status\": {\r",
+							"                        \"status\": {\"type\": \"string\"} ,\r",
+							"                        \"last_active_date\": {\"type\": \"string\"} , // tipo de dato date\r",
+							"                        \"termination_origin\": {\"type\": \"number\"} \r",
+							"                    }\r",
+							"                },\r",
+							"                \"free\": {\"type\": \"string\"} ,\r",
+							"                \"seo_partner\": {\"type\": \"string\"} ,\r",
+							"                \"JWT_BACKEND_AUTH\": {\"type\": \"string\"} \r",
+							"            },\r",
+							"            \"result\": {\r",
+							"                \"status\": {\"type\": \"number\"}  // no se encuentra en documentación\r",
+							"            }\r",
+							"        }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test('validar esquema', function() {\r",
+							"  pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "OCS-APIRequest",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_ping_middleware/api/v1/ping?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_ping_middleware",
+						"api",
+						"v1",
+						"ping"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ping 401 Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = \r",
+							"{\r",
+							"    \"ocs\": {\r",
+							"        \"meta\": {\r",
+							"            \"status\": {\"type\": \"string\"},\r",
+							"            \"statuscode\": {\"type\": \"string\"},\r",
+							"            \"message\": {\"type\": \"string\"}\r",
+							"        },\r",
+							"        \"data\": {\r",
+							"            \"data\": {\r",
+							"                \"adminFamilyPlan\": {\"type\": \"string\"},\r",
+							"                \"hasFamilyPlan\": {\"type\": \"boolean\"},\r",
+							"                \"notifications\": {\"type\": \"array\"}, // revisar el tipo\r",
+							"                \"extraInfo\": {\r",
+							"                    \"socialdata\": [\r",
+							"                        {\r",
+							"                            \"social_user_id\": {\"type\": \"string\"}, // nombres diferentes en documentación\r",
+							"                            \"social_network\": {\"type\": \"string\"}\r",
+							"                        }\r",
+							"                    ]\r",
+							"                },\r",
+							"                \"user\": {\r",
+							"                    \"id\": {\"type\": \"string\"},\r",
+							"                    \"email\": {\"type\": \"string\"},\r",
+							"                    \"language\": {\"type\": \"string\"}, // no esta en documentación\r",
+							"                    \"status\": {\"type\": \"string\"},\r",
+							"                    \"region\": {\"type\": \"string\"},\r",
+							"                    \"is_new\": {\"type\": \"boolean\"}, // no se encuentra\r",
+							"                    \"family_plan_enabled\": {\"type\": \"string\"}, // no en documenración\r",
+							"                    \"user_status\": {\r",
+							"                        \"status\": {\"type\": \"string\"},\r",
+							"                        \"last_active_date\": {\"type\": \"string\"},\r",
+							"                        \"termination_origin\": {\"type\": \"number\"}\r",
+							"                    },\r",
+							"                    \"session_userhash\": {\"type\": \"string\"},\r",
+							"                    \"clarodriveId\": {\"type\": \"number\"}, // en documentacion esta como ID\r",
+							"                    \"user_display_name\": {\"type\": \"string\"},\r",
+							"                    \"profile_picture\": \"\", // no tiene tipo de dato\r",
+							"                    \"country_code\": {\"type\": \"string\"},\r",
+							"                    \"fixed_number\": {\"type\": \"string\"},\r",
+							"                    \"mobile_number\": {\"type\": \"string\"},\r",
+							"                    \"updateable\": \"\", // no se encuentra en documentación\r",
+							"                    \"hasValidPayway\": {\"type\": \"number\"},\r",
+							"                    \"HKS\": {\"type\": \"string\"},\r",
+							"                    \"isVip\": {\"type\": \"boolean\"},\r",
+							"                    \"acceptedTerms\": {\"type\": \"boolean\"}, // no se encuentra\r",
+							"                    \"last_authentication_type\": \"\", // no esta en documentación\r",
+							"                    \"provider\": {\"type\": \"string\"},\r",
+							"                    \"encoded_region\": {\"type\": \"string\"}\r",
+							"                },\r",
+							"                \"subscription\": {\r",
+							"                    \"id\": {\"type\": \"string\"},\r",
+							"                    \"product\": {\r",
+							"                        \"quota\": {\"type\": \"number\"},\r",
+							"                        \"type\": {\"type\": \"string\"}, // No se encuentra en documentación\r",
+							"                        \"product_name\": {\"type\": \"string\"},\r",
+							"                        \"price\": {\"type\": \"number\"},\r",
+							"                        \"currency\": {\"type\": \"string\"},\r",
+							"                        \"id\": {\"type\": \"number\"},\r",
+							"                        \"purchase_data\": {\r",
+							"                            \"paymentMethod\": {\"type\": \"string\"},\r",
+							"                            \"gateway_text\": {\"type\": \"string\"},\r",
+							"                            \"begining\": {\"type\": \"string\"}, //Tipo date\r",
+							"                            \"expiration\": {\"type\": \"string\"}, // Tipo date\r",
+							"                            \"in_promo\": {\"type\": \"number\"},\r",
+							"                            \"expiration_promo\": {\"type\": \"string\"},//Tipo date en documentación\r",
+							"                            \"in_process_cancelled\": {\"type\": \"number\"},\r",
+							"                            \"purchase_id\": {\"type\": \"string\"},\r",
+							"                            \"purchase_checked\": {\"type\": \"number\"}\r",
+							"                        },\r",
+							"                        \"payment_methods\": [\r",
+							"                            {\r",
+							"                                \"gateway\": {\"type\": \"number\"}, // posible\r",
+							"                                \"gateway_text\": {\"type\": \"string\"},\r",
+							"                                \"account_data\": {\r",
+							"                                    \"account\": {\"type\": \"string\"}, // no se encuentra ek tipo en documentación\r",
+							"                                    \"status\": {\"type\": \"string\"}, // no se encuentra ek tipo en documentación\r",
+							"                                    \"user_product_id\": {\"type\": \"string\"} // no se encuentra ek tipo en documentación\r",
+							"                                }\r",
+							"                            }\r",
+							"                        ],\r",
+							"                        \"plan_quota\": {\"type\": \"number\"} , // no seencuentra en docmuentación\r",
+							"                        \"usedQuota\": {\"type\": \"number\"} \r",
+							"                    },\r",
+							"                    \"user_status\": {\r",
+							"                        \"status\": {\"type\": \"string\"} ,\r",
+							"                        \"last_active_date\": {\"type\": \"string\"} , // tipo de dato date\r",
+							"                        \"termination_origin\": {\"type\": \"number\"} \r",
+							"                    }\r",
+							"                },\r",
+							"                \"free\": {\"type\": \"string\"} ,\r",
+							"                \"seo_partner\": {\"type\": \"string\"} ,\r",
+							"                \"JWT_BACKEND_AUTH\": {\"type\": \"string\"} \r",
+							"            },\r",
+							"            \"result\": {\r",
+							"                \"status\": {\"type\": \"number\"}  // no se encuentra en documentación\r",
+							"            }\r",
+							"        }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test('validar esquema', function() {\r",
+							"  pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 401\", function () {\r",
+							"  pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "OCS-APIRequest",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_ping_middleware/api/v1/ping?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_ping_middleware",
+						"api",
+						"v1",
+						"ping"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

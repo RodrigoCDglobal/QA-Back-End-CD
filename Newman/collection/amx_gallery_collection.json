@@ -1,0 +1,560 @@
+{
+	"info": {
+		"_postman_id": "d6024118-32a6-457c-ae31-e632d6c388ec",
+		"name": "amx_gallery copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-d6024118-32a6-457c-ae31-e632d6c388ec?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "api/v2/albums (ver todos) Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonResponse = pm.response.json()",
+							"",
+							"pm.test(\"Status = 100 en meta\", () => {",
+							"    pm.expect(jsonResponse.ocs.meta.statuscode).to.be.oneOf([100, \"100\"])     ",
+							"})",
+							"",
+							"pm.test(\"Almacenar ID del álbum en las variables de colección\", () => {",
+							"    if (jsonResponse.ocs.data[0].hasOwnProperty(\"id\")) pm.collectionVariables.set(\"GALLERY_ALBUM_ID\", jsonResponse.ocs.data[0].id)",
+							"    pm.expect(jsonResponse.ocs.data[0].id || \"0\").to.equal(pm.collectionVariables.get(\"GALLERY_ALBUM_ID\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "name",
+						"value": "string"
+					},
+					{
+						"key": "files",
+						"value": "arr"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_gallery/api/v2/albums",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_gallery",
+						"api",
+						"v2",
+						"albums"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/v2/albums (crear álbum) Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonResponse = pm.response.json()",
+							"",
+							"pm.test(\"Status = 100 en meta\", () => {",
+							"    pm.expect(jsonResponse.ocs.meta.statuscode).to.be.oneOf([100, \"100\"])     ",
+							"})",
+							"",
+							"pm.test(\"Almacenar ID del álbum en las variables de colección\", () => {",
+							"    if (jsonResponse.ocs.data.hasOwnProperty(\"id\")) pm.collectionVariables.set(\"GALLERY_ALBUM_ID\", jsonResponse.ocs.data.id)",
+							"    console.log(pm.collectionVariables.get(\"GALLERY_ALBUM_ID\"))",
+							"    pm.expect(jsonResponse.ocs.data.id || \"0\").to.equal(pm.collectionVariables.get(\"GALLERY_ALBUM_ID\"))",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let nombre = \"Album \" + (length => {\r",
+							"    let result = '';\r",
+							"    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+							"    const charactersLength = characters.length;\r",
+							"    let counter = 0;\r",
+							"    while (counter < length) {\r",
+							"      result += characters.charAt(Math.floor(Math.random() * charactersLength));\r",
+							"      counter += 1;\r",
+							"    }\r",
+							"    return result;\r",
+							"})(5)\r",
+							"\r",
+							"pm.collectionVariables.set(\"GALLERY_NEW_NAME\", nombre)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "name",
+						"value": "string"
+					},
+					{
+						"key": "files",
+						"value": "arr"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{GALLERY_NEW_NAME}}\",\r\n    \"files\": []\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_gallery/api/v2/albums?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_gallery",
+						"api",
+						"v2",
+						"albums"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/v2/albums (ver álbum) Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"/*const schema = {",
+							"    \"type\": \"object\",",
+							"    \"properties\": {",
+							"        \"ocs\": {",
+							"            \"type\": \"object\",",
+							"            \"properties\": {",
+							"                \"meta\": {",
+							"                    \"type\": \"object\",",
+							"                    \"properties\": {",
+							"                        \"status\": {\"type\": \"string\"},",
+							"                        \"statuscode\": {\"type\": \"number\"},",
+							"                        \"message\": {\"type\": \"string\"}",
+							"                    },",
+							"                    \"required\": [\"status\", \"statuscode\", \"message\"],",
+							"                    \"additionalProperties\": true",
+							"                },",
+							"                \"data\": {",
+							"                    \"type\": \"object\",",
+							"                    \"properties\": {",
+							"                        \"elements\": {\"type\": \"number\"},",
+							"                        \"thumbnail\": {\"type\": \"string\"},",
+							"                        \"id\": {\"type\": \"string\"},",
+							"                        \"name\": {\"type\": \"string\"},",
+							"                        \"decoredName\": {\"type\": \"string\"},",
+							"                    },",
+							"                    \"required\": [\"elements\", \"thumbnail\", \"id\", \"name\", \"decoredName\"],",
+							"                    \"additionalProperties\": false",
+							"                },",
+							"            },",
+							"            \"required\": [\"meta\", \"data\"],",
+							"            \"additionalProperties\": false",
+							"        }",
+							"    },",
+							"    \"required\": [\"ocs\"],",
+							"    \"additionalProperties\": false",
+							"}",
+							"",
+							"pm.test(\"Validación del esquema de respuesta\", () => {",
+							"    pm.response.to.have.jsonSchema(schema)",
+							"})*/",
+							"",
+							"let jsonResponse = pm.response.json()",
+							"",
+							"pm.test(\"Status = 100 en meta\", () => {",
+							"    pm.expect(jsonResponse.ocs.meta.statuscode).to.be.oneOf([100, \"100\"])     ",
+							"})",
+							"",
+							"/*pm.test(\"Almacenar ID del álbum en las variables de colección\", () => {",
+							"    if (jsonResponse.ocs.data.hasOwnProperty(\"id\")) pm.collectionVariables.set(\"GALLERY_ALBUM_ID\", jsonResponse.ocs.data.id)",
+							"    pm.expect(jsonResponse.ocs.data.id || \"0\").to.equal(pm.collectionVariables.get(\"GALLERY_ALBUM_ID\"))",
+							"})*/"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "name",
+						"value": "string"
+					},
+					{
+						"key": "files",
+						"value": "arr"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_gallery/api/v2/albums/{{GALLERY_ALBUM_ID}}",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_gallery",
+						"api",
+						"v2",
+						"albums",
+						"{{GALLERY_ALBUM_ID}}"
+					]
+				},
+				"description": "Este servicio trae la información de un álbum de fotos específico, dado su ID.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/1026951992/GET+apps+amx+gallery+albums+album+id+Get+Info+of+a+specific+Album)\n\n[Caso de prueba en Jira](https://dlatvarg.atlassian.net/browse/CDBS-7953)"
+			},
+			"response": []
+		},
+		{
+			"name": "api/v2/albums (modificar álbum) Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonResponse = pm.response.json()",
+							"",
+							"pm.test(\"Status = 100 en meta\", () => {",
+							"    pm.expect(jsonResponse.ocs.meta.statuscode).to.be.oneOf([100, \"100\"])     ",
+							"})",
+							"",
+							"/*pm.test(\"Almacenar ID del álbum en las variables de colección\", () => {",
+							"    if (jsonResponse.ocs.data.hasOwnProperty(\"id\")) pm.collectionVariables.set(\"GALLERY_ALBUM_ID\", jsonResponse.ocs.data.id)",
+							"    pm.expect(jsonResponse.ocs.data.id || \"0\").to.equal(pm.collectionVariables.get(\"GALLERY_ALBUM_ID\"))",
+							"})*/"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "name",
+						"value": "string"
+					},
+					{
+						"key": "files",
+						"value": "arr"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Nuevo álbum H\",\r\n    \"files\": []\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_gallery/api/v2/albums/{{GALLERY_ALBUM_ID}}",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_gallery",
+						"api",
+						"v2",
+						"albums",
+						"{{GALLERY_ALBUM_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/v2/albums/{album_id} (eliminar álbum) Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonResponse = pm.response.json()",
+							"",
+							"pm.test(\"Status = 100 en meta\", () => {",
+							"    pm.expect(jsonResponse.ocs.meta.statuscode).to.be.oneOf([100, \"100\"])     ",
+							"})",
+							"",
+							"pm.test(\"Propiedad data es un arreglo vacío\", () => {",
+							"    pm.expect(jsonResponse.ocs.data).to.be.an(\"array\").that.is.empty",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "OCS-APIREQUEST",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_gallery/api/v2/albums/{{GALLERY_ALBUM_ID}}?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_gallery",
+						"api",
+						"v2",
+						"albums",
+						"{{GALLERY_ALBUM_ID}}"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dynamic_albums_info Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = {",
+							"    \"type\": \"array\",",
+							"    \"items\": {",
+							"        \"type\": \"object\",",
+							"        \"properties\": {",
+							"            \"elements\": {\"type\": \"number\"},",
+							"            \"thumbnail\": {\"type\": \"string\"},",
+							"            \"id\": {\"type\": \"string\"},",
+							"            \"name\": {\"type\": \"string\"},",
+							"            \"decoredName\": {\"type\": \"string\"},",
+							"            \"mimetype\": {\"type\": \"string\"},",
+							"        },",
+							"        \"required\": [\"elements\", \"thumbnail\", \"id\", \"name\", \"decoredName\", \"mimetype\"],",
+							"        \"additionalProperties\": false",
+							"    }",
+							"}",
+							"",
+							"pm.test(\"Código HTTP 200\", function () {",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"pm.test(\"El tipo de contenido es application/json\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/apps/amx_gallery/dynamic_albums_info",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_gallery",
+						"dynamic_albums_info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/v1/shared Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonResponse = pm.response.json()\r",
+							"\r",
+							"pm.test(\"Status = 100 en meta\", () => {\r",
+							"    pm.expect(jsonResponse.ocs.meta.statuscode).to.be.oneOf([100, \"100\"])     \r",
+							"})\r",
+							"\r",
+							"pm.test(\"Propiedad data es un arreglo\", () => {\r",
+							"    pm.expect(jsonResponse.ocs.data).to.be.an(\"array\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "json"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_gallery/api/v1/shared?format=json&include_tags=true",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_gallery",
+						"api",
+						"v1",
+						"shared"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "include_tags",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

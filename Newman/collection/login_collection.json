@@ -1,0 +1,414 @@
+{
+	"info": {
+		"_postman_id": "1daba895-6610-4e99-a431-dcd2d59bb7d1",
+		"name": "0. Inicio de sesión",
+		"description": "**NO SE GUARDAN LOS CAMBIOS REALIZADOS A LOS REQUESTS DENTRO DE ESTA CARPETA.**\n\n- A cuenta automática:\n    - Cuentas almacenadas en una variable de entorno\n        \n    - Se selecciona la instancia deseada cambiando la última palabra del nombre del request (obligatorio)\n        \n- A cuenta específica:\n    - Con usuario y contraseña que se definen manualmente en el body del request\n        \n    - El nombre del request puede o no tener como última palabra la instancia deseada, para definir el endpoint donde se hará el login (masivo o negocio) (opcional)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-1daba895-6610-4e99-a431-dcd2d59bb7d1?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "Login a cuenta de coleccion i0000",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test('Código HTTP 200', () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"})\r",
+							"\r",
+							"pm.test('Validar formato de correo', function () {\r",
+							"    var re = /^\\S+@[\\w\\.-]+\\.\\w{2,}$/;\r",
+							"    pm.expect(re.test(responseJson.user.email)).to.be.true;\r",
+							"})\r",
+							"\r",
+							"pm.test('Validación de valores principales User', function () {\r",
+							"    pm.expect(responseJson.user.id).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.email).to.be.a('string');\r",
+							"    if (pm.variables.get('pais') == 'brazil')\r",
+							"        pm.expect(responseJson.user.language).to.eql('PT');\r",
+							"    else\r",
+							"        pm.expect(responseJson.user.language).to.eql('ES');\r",
+							"    pm.expect(responseJson.user.displayname).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.status).to.be.a('string');\r",
+							"    pm.expect(pm.variables.get('pais')).to.eql(pm.variables.get('pais'));\r",
+							"    pm.expect(responseJson.user.is_new).to.be.a('boolean');\r",
+							"    pm.expect(responseJson.user.has_validpayway).to.be.a('boolean');\r",
+							"    pm.expect(responseJson.user.is_vip).to.be.a('boolean');\r",
+							"    pm.expect(responseJson.user.accepted_terms).to.be.a('boolean');\r",
+							"    pm.expect(responseJson.user.family_plan_enabled).to.be.a('boolean');\r",
+							"})\r",
+							"\r",
+							"pm.test('Validación de subscripción activa (no es crítico)', function () {\r",
+							"    pm.expect(responseJson.user.subscription.id).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.subscription.quota).to.be.a('number');\r",
+							"    pm.expect(responseJson.user.subscription.offer_id).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.subscription.type).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.subscription.product_name).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.subscription.price).to.be.a('string');\r",
+							"    pm.expect(responseJson.user.subscription.currency).to.be.a('string');\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Validación de suscripción purchase_data\", function () {\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data).to.exist;\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.paymentMethod).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.gateway_text).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.begining).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.expiration).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.in_promo).to.be.a(\"number\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.in_process_cancelled).to.be.a(\"number\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.purchase_id).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.purchase_checked).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"pm.test('Ajuste de variables de entorno (para uso en Postman)', function () {\r",
+							"    const redirectUrl = responseJson.redirectUrl;\r",
+							"    const url = redirectUrl.split('/');\r",
+							"    pm.environment.set('instance', url[0] + '//' + url[2]);\r",
+							"    pm.environment.set('USER_ID', responseJson.user.id);\r",
+							"    pm.environment.set('USER_ENCODED', (url => {\r",
+							"        const queryString = url.split('?')[1];\r",
+							"        if (!queryString)\r",
+							"            return {};\r",
+							"        const pairs = queryString.split('&');\r",
+							"        const parameters = {};\r",
+							"        pairs.forEach(pair => {\r",
+							"            const [key, value] = pair.split('=');\r",
+							"            parameters[decodeURIComponent(key)] = decodeURIComponent(value || '');\r",
+							"        });\r",
+							"        return parameters['jwt'];\r",
+							"    })(redirectUrl));\r",
+							"    pm.environment.set('USER_PLAN_ID', responseJson.user.subscription.offer_id);\r",
+							"})\r",
+							"\r",
+							"pm.test('Ejecutar autologin (crear cookies y tokens necesarios)', function () {\r",
+							"    const redirectUrl = responseJson.redirectUrl;\r",
+							"    pm.sendRequest(redirectUrl);\r",
+							"})\r",
+							"\r",
+							"pm.test('Obtener token CSRF', function () {\r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('instance') + '/csrftoken',\r",
+							"        method: 'GET'\r",
+							"    }, (error, response) => {\r",
+							"        let jsonData = response.json();\r",
+							"        pm.environment.set('CSRF', jsonData.token);\r",
+							"    });\r",
+							"})\r",
+							"\r",
+							"/*\r",
+							"pm.test('Cookies', function () {\r",
+							"    const cookieJar = pm.cookies.jar();\r",
+							"    cookieJar.getAll(pm.environment.get('portal'), function (error, cookies) {\r",
+							"        console.log('Cookies obtenidas:', cookies);\r",
+							"        if (error) {\r",
+							"            console.log('Error al obtener cookies:', error);\r",
+							"            return;\r",
+							"        }\r",
+							"        if (!cookies) {\r",
+							"            console.log('No se recibieron cookies');\r",
+							"            return;\r",
+							"        }\r",
+							"        const expected_cookies = [\r",
+							"            'HKS',\r",
+							"            'CD_USER',\r",
+							"            'JWT_BACKEND_AUTH'\r",
+							"        ];\r",
+							"        cookies.filter(cookie => expected_cookies.includes(cookie.name)).forEach(cookie => pm.environment.set(cookie.name, cookie.value));\r",
+							"    });\r",
+							"})\r",
+							"*/\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const requestName = pm.info.requestName.split(\" \")\r",
+							"let instance = requestName[Math.max(0, requestName.length-1)] || \"i0000\"\r",
+							"if (!(instance.startsWith(\"i000\") || instance.startsWith(\"test-000\"))) instance = \"i0000\"\r",
+							"\r",
+							"/* Asignación automática de la cuenta almacenada en las variables de entorno */\r",
+							"let accounts\r",
+							"let account = {}\r",
+							"try {\r",
+							"    accounts = JSON.parse(pm.environment.get(\"ACCOUNTS\"))\r",
+							"} catch {\r",
+							"    throw new Error(\"La variable de entorno 'accounts' está corrupta, el JSON es inválido o faltan instancias.\")\r",
+							"}\r",
+							"account = accounts[instance] \r",
+							"if (!account) throw new Error(`La instancia ${instance} no está dentro de la variable de entorno 'accounts' del ambiente ${pm.environment.name}.`)\r",
+							"\r",
+							"\r",
+							"pm.request.url = `${pm.environment.get(\"portal\")}${account.hasOwnProperty(\"path\") ? account.path : \"/api/v2/auth/login/email\"}`\r",
+							"pm.request.body.update({\r",
+							"    mode: \"urlencoded\",\r",
+							"    urlencoded : [\r",
+							"        { key: \"username\", value: account.username},\r",
+							"        { key: \"password\", value: account.password},\r",
+							"    ]\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded; charset=UTF-8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{portal}}/api/v2/auth/login/email/",
+					"host": [
+						"{{portal}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"auth",
+						"login",
+						"email",
+						""
+					]
+				},
+				"description": "Este request contiene todo lo necesario para iniciar sesión en una cuenta de CD, definiendo únicamente la instancia deseada.\n\nAnte un inicio de sesión exitoso, crea también todas las variables requeridas para la ejecución de los demás flujos de este workspace.\n\n#### **NO SE EDITA el endpoint, el body, los pre-request scripts o los tests.**\n\nPara seleccionar una instancia, solo es necesario cambiar el nombre del request para que la última palabra sea una instancia de entre las siguientes:\n\n- PROD\n    - i0000\n    - i0001\n    - i0002\n    - i0003 (negocio)\n    - i0004\n    - i0005\n    - i0006 (negocio)\n- TEST\n    - test-0000\n    - test-0001\n\nSi no se especifica una instancia, se intentará iniciar en la instancia `i0000`.\n\nEl endpoint se editará automáticamente si la instancia seleccionada es de tipo negocio.\n\nEste request obtiene las cuentas desde la variable de entorno `accounts`."
+			},
+			"response": []
+		},
+		{
+			"name": "Login a cuenta específica i0003",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const requestName = pm.info.requestName.split(\" \")\r",
+							"const instance = requestName.slice(-1)[0]\r",
+							"\r",
+							"// Asignación automática del endpoint para login\r",
+							"let account = {}\r",
+							"if (instance.startsWith(\"i000\") || instance.startsWith(\"test-000\")) {\r",
+							"    let accounts\r",
+							"    try {\r",
+							"        accounts = JSON.parse(pm.environment.get(\"ACCOUNTS\"))\r",
+							"    } catch {\r",
+							"        throw new Error(\"La variable de entorno 'accounts' está corrompida, el JSON es inválido o faltan instancias.\")\r",
+							"    }\r",
+							"    account = accounts[instance] \r",
+							"    if (!account) throw new Error(`La instancia ${instance} no está dentro de la variable de entorno 'accounts' del ambiente ${pm.environment.name}.`)\r",
+							"}\r",
+							"pm.request.url = `${pm.environment.get(\"portal\")}${account.hasOwnProperty(\"path\") ? account.path : \"/api/v2/auth/login/email\"}`"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson = pm.response.json()\r",
+							"\r",
+							"pm.test(\"Código HTTP 200\", () => {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"//validacion formato de correo\r",
+							"pm.test(\"Validar formato de correo\", function () {\r",
+							"    var re = /^\\S+@[\\w\\.-]+\\.\\w{2,}$/;\r",
+							"    \r",
+							"    pm.expect(re.test(responseJson.user.email)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"//Validacion de seccion User\r",
+							"pm.test(\"Validación de valores principales User\", function () {\r",
+							"    pm.expect(responseJson.user.id).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.email).to.be.a(\"string\"); \r",
+							"\r",
+							"    //Validacion de lenguaje\r",
+							"    if(pm.variables.get(\"pais\") == \"brazil\")\r",
+							"        pm.expect(responseJson.user.language).to.eql(\"PT\");\r",
+							"    else\r",
+							"        pm.expect(responseJson.user.language).to.eql(\"ES\"); \r",
+							"\r",
+							"    pm.expect(responseJson.user.displayname).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.status).to.be.a(\"string\");\r",
+							"    pm.expect(pm.variables.get(\"pais\")).to.eql(pm.variables.get(\"pais\"));\r",
+							"    pm.expect(responseJson.user.is_new).to.be.a(\"boolean\");\r",
+							"    pm.expect(responseJson.user.has_validpayway).to.be.a(\"boolean\");\r",
+							"    pm.expect(responseJson.user.is_vip).to.be.a(\"boolean\");\r",
+							"    pm.expect(responseJson.user.accepted_terms).to.be.a(\"boolean\");\r",
+							"    pm.expect(responseJson.user.family_plan_enabled).to.be.a(\"boolean\");\r",
+							"}); \r",
+							"\r",
+							"//Validacion de suscripcion\r",
+							"pm.test(\"Validación de subscripción activa (no es crítico)\", function () {\r",
+							"    pm.expect(responseJson.user.subscription.id).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.quota).to.be.a(\"number\");\r",
+							"    pm.expect(responseJson.user.subscription.offer_id).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.type).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.product_name).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.price).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.currency).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"//Validacion de suscripcion purchase_data\r",
+							"pm.test(\"Validación de suscripción purchase_data\", function () {\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.paymentMethod).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.gateway_text).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.begining).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.expiration).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.in_promo).to.be.a(\"number\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.in_process_cancelled).to.be.a(\"number\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.purchase_id).to.be.a(\"string\");\r",
+							"    pm.expect(responseJson.user.subscription.purchase_data.purchase_checked).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"//Obteniendo las variables de entorno con base al usuario\r",
+							"pm.test(\"Ajuste de variables de entorno (para uso en Postman)\", function () {\r",
+							"    // Getting the instance\r",
+							"    const redirectUrl = responseJson.redirectUrl;\r",
+							"    const url = redirectUrl.split(\"/\");\r",
+							"    pm.environment.set(\"instance\", url[0] + \"//\" + url[2]);\r",
+							"\r",
+							"    // User ID or gamification\r",
+							"    pm.environment.set(\"USER_ID\",responseJson.user.id);\r",
+							"\r",
+							"    // Encoded user JWT\r",
+							"    pm.environment.set(\"USER_ENCODED\", ((url) => {\r",
+							"        const queryString = url.split('?')[1];\r",
+							"\r",
+							"        if (!queryString) return {};\r",
+							"        const pairs = queryString.split('&');\r",
+							"        const parameters = {};\r",
+							"        pairs.forEach((pair) => {\r",
+							"            const [key, value] = pair.split('=');\r",
+							"            parameters[decodeURIComponent(key)] = decodeURIComponent(value || '');\r",
+							"        });\r",
+							"\r",
+							"        return parameters[\"jwt\"];\r",
+							"    })(redirectUrl));\r",
+							"});\r",
+							"\r",
+							"//Haciendo autologin\r",
+							"pm.test(\"Ejecutar autologin (crear cookies y tokens necesarios)\", function () {\r",
+							"    const redirectUrl = responseJson.redirectUrl;\r",
+							"    pm.sendRequest(redirectUrl);\r",
+							"});\r",
+							"\r",
+							"// Obtener CSRF\r",
+							"pm.test(\"Obtener token CSRF\", function () {\r",
+							"    pm.sendRequest({\r",
+							"        url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"        method : \"GET\"\r",
+							"    }, (error, response) => {\r",
+							"        let jsonData = response.json()\r",
+							"        pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"    })\r",
+							"});\r",
+							"\r",
+							"//Obtener las cookies\r",
+							"/*pm.test(\"Cookies\", function () {\r",
+							"    const cookieJar = pm.cookies.jar();\r",
+							"    cookieJar.getAll(pm.environment.get(\"portal\"), function(error, cookies) {\r",
+							"        const expected_cookies = [\"HKS\", \"CD_USER\", \"JWT_BACKEND_AUTH\"];\r",
+							"        cookies\r",
+							"            .filter(cookie => expected_cookies.includes(cookie.name))\r",
+							"            .forEach(cookie => pm.environment.set(cookie.name, cookie.value));\r",
+							"    });\r",
+							"});*/"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded; charset=UTF-8"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "i0003-test-01@getnada.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "Qa654321$$",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{portal}}/api/v2/auth/login/email",
+					"host": [
+						"{{portal}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"auth",
+						"login",
+						"email"
+					]
+				},
+				"description": "Este request contiene todo lo necesario para iniciar sesión en una cuenta de CD, definiendo únicamente la instancia deseada, el correo y la contraseña.\n\nAnte un inicio de sesión exitoso, crea también todas las variables requeridas para la ejecución de los demás flujos de este workspace.\n\n#### **NO SE EDITA el endpoint, los pre-request scripts o los tests.**\n\nPara seleccionar una instancia, solo es necesario cambiar el nombre del request para que la última palabra sea una instancia de entre las siguientes:\n\n- PROD\n    - i0000\n    - i0001\n    - i0002\n    - i0003 (negocio)\n    - i0004\n    - i0005\n    - i0006 (negocio)\n- TEST\n    - test-0000\n    - test-0001\n\nSi no se especifica una instancia, se intentará iniciar en la instancia `i0000`.\n\nEl endpoint se editará automáticamente si la instancia seleccionada es de tipo negocio."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "FILE_ID",
+			"value": ""
+		},
+		{
+			"key": "OWNER_ID",
+			"value": ""
+		},
+		{
+			"key": "VIRTUAL_FOLDERS_SHARE_FILES_ID",
+			"value": ""
+		},
+		{
+			"key": "oreo",
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,193 @@
+{
+	"info": {
+		"_postman_id": "4424a4c3-0a8d-4ffa-9ed5-2baaf5e031a9",
+		"name": "amx_branding avatar Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-4424a4c3-0a8d-4ffa-9ed5-2baaf5e031a9?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "postAvatar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {",
+							"    pm.expect(pm.response.code).to.equal(200)",
+							"})",
+							"",
+							"pm.test(\"El parámetro status existe y contiene el valor esperado\", function () {",
+							"    const responseData = pm.response.json()",
+							"    pm.expect(responseData.status).to.exist.and.to.equal(\"success\")",
+							"})",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "OCS-APIREQUEST",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file[]",
+							"type": "file",
+							"src": "Muestra JPG.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_branding/avatar",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_branding",
+						"avatar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAvatar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"\r",
+							"pm.test(\"El header Content-Type inicia con 'image/'\", function () {\r",
+							"    const header = String(pm.response.headers.get(\"Content-Type\"))\r",
+							"    pm.expect(header.startsWith(\"image/\")).to.be.true\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APIREQUEST",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic NjBiOTE2ODJhNzQ3NGI2YzY2N2ZkZjllOjRxUEhOLW1rWlJGLUVyR3FrLWFqd21TLUU2Z1RK",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/avatar/{{USER_ID}}/123?v=2",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"avatar",
+						"{{USER_ID}}",
+						"123"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteAvatar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "OCS-APIREQUEST",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic NjBiOTE2ODJhNzQ3NGI2YzY2N2ZkZjllOjRxUEhOLW1rWlJGLUVyR3FrLWFqd21TLUU2Z1RK",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file[]",
+							"type": "file",
+							"src": "naturePic.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{instance}}/avatar",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"avatar"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

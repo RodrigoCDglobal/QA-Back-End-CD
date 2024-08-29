@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "92b775b6-3e13-40f1-bde7-bd60d0cc0a45",
+		"name": "amx_family_plan Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-92b775b6-3e13-40f1-bde7-bd60d0cc0a45?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "get-plan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Validacion de valores principales\", function() {\r",
+							"    pm.expect(jsonData.id).to.be.a(\"string\")\r",
+							"    pm.collectionVariables.set(\"FAMILY_PLAN_ID\", jsonData.id)\r",
+							"\r",
+							"    pm.expect(jsonData.title).to.be.a(\"string\")\r",
+							"    pm.expect(jsonData.quota).to.be.a(\"number\")\r",
+							"    pm.expect(jsonData.guests).to.be.a(\"array\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El plan familiar contiene miembros activos (no es crítico)\", function() {\r",
+							"    pm.expect(jsonData.guests.length).is.above(1)\r",
+							"\r",
+							"    let invitedUser\r",
+							"    jsonData.guests.forEach(guest => {\r",
+							"        if (guest.status == \"active\" && !guest.is_administrator) invitedUser = guest\r",
+							"    })\r",
+							"\r",
+							"    pm.expect(invitedUser).to.be.an(\"object\")\r",
+							"    \r",
+							"    pm.collectionVariables.set(\"FAMILY_PLAN_INVITED_USER\", JSON.stringify(invitedUser))\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{instance}}/apps/amx_family_plan/api/v1/get-plan?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_family_plan",
+						"api",
+						"v1",
+						"get-plan"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check-email",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson = pm.response.json()\r",
+							"\r",
+							"pm.test('Código HTTP 200', () => {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test('La repuesta contiene el parámetro email_exists', () => {\r",
+							"    pm.expect(responseJson).to.haveOwnProperty(\"email_exists\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "cd_be_03@lez.com.mx",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{portal}}/api/v2/family-plan/check-availability",
+					"host": [
+						"{{portal}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"family-plan",
+						"check-availability"
+					]
+				},
+				"description": "### Documentación del Endpoint\n\n#### Título del Endpoint\n\nVerificar Disponibilidad de Plan Familiar\n\n#### Endpoint\n\n`https://test-portal.clarodrive.com/api/v2/family-plan/check-availability`\n\n#### Método HTTP\n\n`POST`\n\n#### Descripción\n\nEste endpoint se utiliza para verificar la disponibilidad de un plan familiar para un usuario específico, identificado por su correo electrónico. La verificación se realiza para asegurar que el usuario pueda ser añadido a un plan familiar o para validar si ya forma parte de uno. Es crucial en el proceso de gestión de planes familiares, permitiendo una adecuada administración de los miembros y evitando duplicidades o conflictos en las asignaciones.\n\n#### Headers Necesarios\n\n- `Content-Type`: `application/json` para indicar que el cuerpo de la solicitud se envía en formato JSON.\n    \n- `Cookie`: Contiene múltiples cookies necesarias para mantener la sesión del usuario y la autenticación, incluyendo `CD_USER`, `JWT_BACKEND_AUTH`, `PORTAL_REGION`, `nc_publicView`, `BIGipServerPool-Test-0000.clarodrive.com`, `__Host-nc_sameSiteCookielax`, `__Host-nc_sameSiteCookiestrict`, y `oc_sessionPassphrase`.\n    \n\n#### Cuerpo de la Solicitud\n\nEl cuerpo de la solicitud se envía como form-data en este caso, pero la descripción sugiere que debería ser un objeto JSON. Esto puede ser un error en la construcción del comando cURL proporcionado. Para seguir las mejores prácticas y el header `Content-Type` especificado, el cuerpo de la solicitud debería estructurarse como sigue en JSON, aunque el comando cURL utiliza form-data:\n\n``` json\n{\n    \"email\": \"{{EMAIL}}\"\n}\n\n ```\n\n#### Ejemplo de Uso Correcto\n\nPara adaptarse mejor a la descripción y headers proporcionados, el comando cURL debería modificarse para enviar datos en formato JSON en lugar de form-data, lo cual sería más coherente con el `Content-Type` especificado:\n\n``` bash\ncurl --location 'https://test-portal.clarodrive.com/api/v2/family-plan/check-availability' \\\n--header 'Content-Type: application/json' \\\n--header 'Cookie: [Incluir las cookies necesarias]' \\\n--data-raw '{\n    \"email\": \"usuario@example.com\"\n}'\n\n ```\n\n#### Nota\n\nEs importante asegurarse de que el correo electrónico proporcionado pertenece al usuario que se desea verificar para el plan familiar, manteniendo la consistencia y la precisión en la gestión de miembros del plan.\n\n---\n\n#### Confluence\n\nNo tiene\n\n#### Casos de prueba\n\n[https://dlatvarg.atlassian.net/issues/?filter=53244&amp;jql=project%20=%20CDBS%20AND%20type%20=%20Test%20AND%20text%20~%20\"amx_family\"](https://dlatvarg.atlassian.net/issues/?filter=53244&jql=project%20%3D%20CDBS%20AND%20type%20%3D%20Test%20AND%20text%20~%20%22amx_family%22)"
+			},
+			"response": []
+		},
+		{
+			"name": "invite-user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El parámetro id existe y se almacena en variable de colección\", function () {\r",
+							"    const responseData = pm.response.json()\r",
+							"    pm.expect(responseData.id).to.exist.and.to.be.an(\"string\").that.is.not.empty\r",
+							"\r",
+							"    pm.collectionVariables.set(\"FAMILY_PLAN_INVITE_ID\", responseData.id)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"qa_be@clarodrive.com\",  // Correo del invitado (no existe)\n\t\"assigned_space\": 1073741824 // 1 GB\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_family_plan/api/v1/invite-user?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_family_plan",
+						"api",
+						"v1",
+						"invite-user"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "re-invite-user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El objeto de respuesta contiene las propiedades esperadas\", function () {\r",
+							"    const responseData = pm.response.json()\r",
+							"    pm.expect(responseData).to.be.an('object').that.has.all.keys('invite_id', 'email', 'status', 'is_administrator', 'assigned_quota', 'display_name', 'used_quota')\r",
+							"\r",
+							"    pm.expect(responseData.invite_id).to.equal(pm.collectionVariables.get(\"FAMILY_PLAN_INVITE_ID\"))\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"invitationId\": \"{{FAMILY_PLAN_INVITE_ID}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_family_plan/api/v1/re-invite-user?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_family_plan",
+						"api",
+						"v1",
+						"re-invite-user"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cancelInvitation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El parámetro deleted existe y tiene el valor esperado\", function () {\r",
+							"    const responseData = pm.response.json()\r",
+							"    pm.expect(responseData.deleted).to.exist.and.to.be.a(\"boolean\").that.equals(true)\r",
+							"\r",
+							"    pm.collectionVariables.unset(\"FAMILY_PLAN_INVITE_ID\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"invite_id\": \"{{FAMILY_PLAN_INVITE_ID}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/apps/amx_family_plan/api/v1/cancelInvitation?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"apps",
+						"amx_family_plan",
+						"api",
+						"v1",
+						"cancelInvitation"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

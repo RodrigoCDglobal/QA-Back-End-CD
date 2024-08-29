@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "a7d5121c-5c50-4bd7-a82d-693ffb84e75a",
+		"name": "amx_payment copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-a7d5121c-5c50-4bd7-a82d-693ffb84e75a?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "plans Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El arreglo de planes existe y tiene al menos un elemento\", function () {\r",
+							"    const responseData = pm.response.json()\r",
+							"    \r",
+							"    pm.expect(responseData).to.be.an('object')\r",
+							"    pm.expect(responseData.plans).to.exist.and.to.be.an('array').that.is.not.empty\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_payment_profile_page/api/v1/plans?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_payment_profile_page",
+						"api",
+						"v1",
+						"plans"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserQuota Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function () {\r",
+							"    const responseData = pm.response.json()\r",
+							"    \r",
+							"    pm.expect(responseData).to.be.an('object')\r",
+							"    pm.expect(responseData).to.have.property('usage').that.is.a(\"string\")\r",
+							"    pm.expect(responseData).to.have.property('total_space').that.is.a(\"string\")\r",
+							"    pm.expect(responseData).to.have.property('usage_relative').that.is.a(\"number\")\r",
+							"    pm.expect(responseData).to.have.property('quota').that.is.a(\"number\")\r",
+							"    pm.expect(responseData).to.have.property('unlimited').that.is.a(\"boolean\")\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json, text/plain, */*"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_payment_profile_page/api/v1/getUserQuota?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_payment_profile_page",
+						"api",
+						"v1",
+						"getUserQuota"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserQuotaFiltered Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_payment_profile_page/api/v2/getUserQuotaFiltered?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_payment_profile_page",
+						"api",
+						"v2",
+						"getUserQuotaFiltered"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

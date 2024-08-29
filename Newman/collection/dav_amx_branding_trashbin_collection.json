@@ -1,0 +1,473 @@
+{
+	"info": {
+		"_postman_id": "5eb30f92-02e6-41ed-8c1b-dff577728372",
+		"name": "dav y amx_branding trashbin copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-5eb30f92-02e6-41ed-8c1b-dff577728372?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "files/{USER_ID} (archivos destacados) Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({\r",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",\r",
+							"    method : \"GET\"\r",
+							"}, (error, response) => {\r",
+							"    let jsonData = response.json()\r",
+							"    pm.environment.set(\"CSRF\", jsonData.token)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código HTTP 207\", function () {\r",
+							"    pm.response.to.have.status(207)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"El tipo de contenido es application/xml\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/xml\")\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "REPORT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "<?xml version=\"1.0\"?>\n<oc:filter-files  xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\" xmlns:ocs=\"http://open-collaboration-services.org/ns\">\n    <d:prop>\n        <d:getlastmodified />\n        <d:getetag />\n        <d:getcontenttype />\n        <d:resourcetype />\n        <oc:fileid />\n        <oc:permissions />\n        <oc:size />\n        <d:getcontentlength />\n        <nc:has-preview />\n        <oc:favorite />\n        <oc:comments-unread />\n        <oc:owner-display-name />\n        <oc:share-types />\n        <d:displayname />\n        <oc:owner-id />\n    </d:prop>\n    <oc:filter-rules>\n        <oc:favorite>1</oc:favorite>\n    </oc:filter-rules>\n</oc:filter-files>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/remote.php/dav/files/{{USER_ID}}",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"remote.php",
+						"dav",
+						"files",
+						"{{USER_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "trash Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",",
+							"    method : \"GET\"",
+							"}, (error, response) => {",
+							"    let jsonData = response.json()",
+							"    pm.environment.set(\"CSRF\", jsonData.token)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"pm.test(\"Status code is 207\", function () {\r",
+							"    pm.response.to.have.status(207)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"La respuesta del servicio es un arreglo\", function() {\r",
+							"    pm.expect(jsonData.response).to.be.an(\"array\")\r",
+							"})\r",
+							"\r",
+							"const root = `/remote.php/dav/trashbin/${pm.environment.get(\"USER_ID\")}/trash/`\r",
+							"pm.test(\"La respuesta contiene la raíz de la papelera y, para cada archivo, su atributo de identificador único coincide con el presente en su nombre\", function() {\r",
+							"    let correct = false\r",
+							"\r",
+							"    jsonData.response.forEach((file) => {\r",
+							"        if (!correct) correct = file.href == root\r",
+							"    })\r",
+							"\r",
+							"    jsonData.response.forEach((file) => {\r",
+							"        if (file.href == root) return\r",
+							"\r",
+							"        if (correct) correct = (file.href.indexOf(`.d${file[\"d:getetag\"]}`)+(file[\"d:getetag\"].toString().length)+2) == file.href.replace(/\\/$/, \"\").length\r",
+							"    })\r",
+							"\r",
+							"    pm.expect(correct).to.be.true\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Almacenar ID del primer elemento en una variable de colección\", () => {\r",
+							"    let fileJ\r",
+							"\r",
+							"    jsonData.response.forEach((file) => {\r",
+							"        if (file.href == root) return\r",
+							"\r",
+							"        if (!fileJ) fileJ = file\r",
+							"    })\r",
+							"\r",
+							"    if (fileJ) pm.collectionVariables.set(\"TRASHBIN_ITEM_ID\", fileJ[\"oc:fileid\"])\r",
+							"}) "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PROPFIND",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "<d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">\n\t<d:prop>\n\t\t<nc:trashbin-filename />\n\t\t<nc:trashbin-deletion-time />\n\t\t<nc:trashbin-original-location />\n\t\t<d:getlastmodified />\n\t\t<d:getetag />\n\t\t<d:resourcetype />\n\t\t<oc:fileid />\n\t\t<oc:permissions />\n\t\t<oc:size />\n\t\t<nc:has-preview />\n\t\t<d:getcontenttype />\n\t</d:prop>\n</d:propfind>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/remote.php/dav/trashbin/{{USER_ID}}/trash",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"remote.php",
+						"dav",
+						"trashbin",
+						"{{USER_ID}}",
+						"trash"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "recover Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",",
+							"    method : \"GET\"",
+							"}, (error, response) => {",
+							"    let jsonData = response.json()",
+							"    pm.environment.set(\"CSRF\", jsonData.token)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"files\": [{{TRASHBIN_ITEM_ID}}]\n} "
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_branding/api/v1/trashbin/recover?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_branding",
+						"api",
+						"v1",
+						"trashbin",
+						"recover"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "trash (necesita doble ejecución) Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",",
+							"    method : \"GET\"",
+							"}, (error, response) => {",
+							"    let jsonData = response.json()",
+							"    pm.environment.set(\"CSRF\", jsonData.token)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"pm.test(\"Status code is 207\", function () {\r",
+							"    pm.response.to.have.status(207)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"La respuesta del servicio es un arreglo\", function() {\r",
+							"    pm.expect(jsonData.response).to.be.an(\"array\")\r",
+							"})\r",
+							"\r",
+							"const root = `/remote.php/dav/trashbin/${pm.environment.get(\"USER_ID\")}/trash/`\r",
+							"pm.test(\"La respuesta contiene la raíz de la papelera y, para cada archivo, su atributo de identificador único coincide con el presente en su nombre\", function() {\r",
+							"    let correct = false\r",
+							"\r",
+							"    jsonData.response.forEach((file) => {\r",
+							"        if (!correct) correct = file.href == root\r",
+							"    })\r",
+							"\r",
+							"    jsonData.response.forEach((file) => {\r",
+							"        if (file.href == root) return\r",
+							"\r",
+							"        if (correct) correct = (file.href.indexOf(`.d${file[\"d:getetag\"]}`)+(file[\"d:getetag\"].toString().length)+2) == file.href.replace(/\\/$/, \"\").length\r",
+							"    })\r",
+							"\r",
+							"    pm.expect(correct).to.be.true\r",
+							"})\r",
+							"\r",
+							"pm.test(\"Almacenar ID del primer elemento en una variable de colección\", () => {\r",
+							"    let fileJ\r",
+							"\r",
+							"    jsonData.response.forEach((file) => {\r",
+							"        if (file.href == root) return\r",
+							"\r",
+							"        if (!fileJ) fileJ = file\r",
+							"    })\r",
+							"\r",
+							"    if (fileJ) pm.collectionVariables.set(\"TRASHBIN_ITEM_ID\", fileJ[\"oc:fileid\"])\r",
+							"}) "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CSRF}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PROPFIND",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "<d:propfind xmlns:d=\"DAV:\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\">\n\t<d:prop>\n\t\t<nc:trashbin-filename />\n\t\t<nc:trashbin-deletion-time />\n\t\t<nc:trashbin-original-location />\n\t\t<d:getlastmodified />\n\t\t<d:getetag />\n\t\t<d:resourcetype />\n\t\t<oc:fileid />\n\t\t<oc:permissions />\n\t\t<oc:size />\n\t\t<nc:has-preview />\n\t\t<d:getcontenttype />\n\t</d:prop>\n</d:propfind>",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/remote.php/dav/trashbin/{{USER_ID}}/trash",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"remote.php",
+						"dav",
+						"trashbin",
+						"{{USER_ID}}",
+						"trash"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest({",
+							"    url : pm.environment.get(\"instance\") + \"/csrftoken\",",
+							"    method : \"GET\"",
+							"}, (error, response) => {",
+							"    let jsonData = response.json()",
+							"    pm.environment.set(\"CSRF\", jsonData.token)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					},
+					{
+						"key": "requesttoken",
+						"value": "{{CSRF}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"files\": [{{TRASHBIN_ITEM_ID}}]\n} "
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_branding/api/v1/trashbin/delete?format=json",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_branding",
+						"api",
+						"v1",
+						"trashbin",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

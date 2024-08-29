@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "20b92623-113f-453d-9a9b-4706f3a4da58",
+		"name": "amx_files copia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-20b92623-113f-453d-9a9b-4706f3a4da58?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "api/v1/recent Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parse the response to JSON\r",
+							"let response = pm.response.json();\r",
+							"\r",
+							"// Validate the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Ensure that 'ocs', 'ocs.meta', and 'ocs.data' fields exist\r",
+							"pm.test(\"The response contains 'ocs', 'ocs.meta', and 'ocs.data'\", function () {\r",
+							"    pm.expect(response).to.have.property('ocs');\r",
+							"    pm.expect(response.ocs).to.have.property('meta');\r",
+							"    pm.expect(response.ocs).to.have.property('data');\r",
+							"    pm.expect(response.ocs.data).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// Validate the structure of 'ocs.meta'\r",
+							"pm.test(\"Validation of the 'ocs.meta' structure\", function () {\r",
+							"    pm.expect(response.ocs.meta).to.be.an('object');\r",
+							"    pm.expect(response.ocs.meta.status).to.be.a('string');\r",
+							"    pm.expect(response.ocs.meta.statuscode).to.eql(100);\r",
+							"    pm.expect(response.ocs.meta.message).to.be.a('string');\r",
+							"    pm.expect(response.ocs.meta.totalitems).to.be.a('string');\r",
+							"    pm.expect(response.ocs.meta.itemsperpage).to.be.a('string');\r",
+							"});\r",
+							"\r",
+							"// Validate the structure of 'ocs.data'\r",
+							"pm.test(\"Validation of the 'ocs.data' structure\", function () {\r",
+							"    // Ensure that 'ocs.data' is an array of arrays\r",
+							"    pm.expect(response.ocs.data).to.be.an('array');\r",
+							"    \r",
+							"    // Iterate over each sub-array in 'ocs.data'\r",
+							"    response.ocs.data.forEach(subArray => {\r",
+							"        pm.expect(subArray).to.be.an('array');\r",
+							"        \r",
+							"        // Validate each object in the sub-array\r",
+							"        subArray.forEach(item => {\r",
+							"            // Verify the object includes at least the specified keys\r",
+							"            pm.expect(item).to.be.an('object').that.includes.keys(\r",
+							"                'id', 'parentId', 'mtime', 'name', 'permissions', 'mimetype', \r",
+							"                'size', 'type', 'etag', 'path', 'share_type', 'password', \r",
+							"                'expiration', 'owner_id', 'favorite'\r",
+							"            );\r",
+							"    \r",
+							"            // Validate the type of each property\r",
+							"            pm.expect(item.id).to.be.a('string');\r",
+							"            pm.expect(item.parentId).to.be.a('string');\r",
+							"            pm.expect(item.mtime).to.be.a('number');\r",
+							"            pm.expect(item.name).to.be.a('string');\r",
+							"            pm.expect(item.permissions).to.be.a('string');\r",
+							"            pm.expect(item.mimetype).to.be.a('string');\r",
+							"            pm.expect(item.size).to.be.a('number');\r",
+							"            pm.expect(item.type).to.be.a('string');\r",
+							"            pm.expect(item.etag).to.be.a('string');\r",
+							"            pm.expect(item.path).to.be.a('string');\r",
+							"            pm.expect(item.share_type).to.be.an('array');\r",
+							"            // 'password' can be a boolean or null\r",
+							"            if (item.password !== null) {\r",
+							"                pm.expect(item.password).to.be.a('boolean');\r",
+							"            }\r",
+							"            // 'expiration' can be a number or null\r",
+							"            if (item.expiration !== null) {\r",
+							"                pm.expect(item.expiration).to.be.a('number');\r",
+							"            }\r",
+							"            pm.expect(item.owner_id).to.be.a('string');\r",
+							"            pm.expect(item.favorite).to.be.a('boolean');\r",
+							"        });\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v1.php/apps/amx_files/api/v1/recent?format=json&offset=0&limit=25",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v1.php",
+						"apps",
+						"amx_files",
+						"api",
+						"v1",
+						"recent"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "25"
+						}
+					]
+				},
+				"description": "[https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3338535216/GET+amx+files+api+v1+recent](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3338535216/GET+amx+files+api+v1+recent)\n\nEl parámetro GET recent permite obtener un arreglo de arreglos de las actividades más recientes que se han hecho en la cuenta en cuestión."
+			},
+			"response": []
+		}
+	]
+}

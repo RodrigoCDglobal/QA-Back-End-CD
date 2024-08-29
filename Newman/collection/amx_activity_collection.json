@@ -1,0 +1,1138 @@
+{
+	"info": {
+		"_postman_id": "9b875c08-4dfb-434e-a9ea-e5e03d7150f6",
+		"name": "amx_activity Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23946020",
+		"_collection_link": "https://restless-equinox-740597.postman.co/workspace/CDBS~17e192b3-4c4d-4c88-9273-6b407d415a1d/collection/23946020-9b875c08-4dfb-434e-a9ea-e5e03d7150f6?action=share&source=collection_link&creator=23946020"
+	},
+	"item": [
+		{
+			"name": "files_sharing",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"shared\": [\r",
+							"        \"Eliminaste<br>la liga pública de {file}\",\r",
+							"        \"You removed public link for {file}\",\r",
+							"        \"Você excluiu<br>o link publico de {file}\",\r",
+							"\r",
+							"        \"Compartiste<br>{file} como una liga pública\",\r",
+							"        \"You shared {file} as public link\",\r",
+							"        \"Você compartilhou<br>{file} como um link publico\",\r",
+							"\r",
+							"        \"La liga pública<br>para {file} ha expirado\",\r",
+							"        \"Public link expired for {file}\",\r",
+							"        \"O link público<br>de {file} expirou\",\r",
+							"    ],\r",
+							"\r",
+							"    \"remote_share\": [\r",
+							"        \"Recibiste<br>un nuevo elemento compartido remoto {file} de {user}\",\r",
+							"        \"You received a new remote share {file} from {user}\",\r",
+							"        \"Você recebeu<br>um novo compartilhamento remoto {file} de {user}\",\r",
+							"\r",
+							"        \"{user} declined the remote share of {file}\",\r",
+							"        \"{user} declinou<br>do compartilhamento remoto de {file}\"\r",
+							"    ],\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/files_sharing?format=json&previews=true&limit=50&since=0",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"files_sharing"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "50"
+						},
+						{
+							"key": "since",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes del usuario, relacionadas con la compartición de archivos.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3288006725/GET+ocs+v2.php+apps+amx+activity+api+v1+activity+files+sharing+File+sharing+activities)\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-5178\n- CDBS-5806\n    \n- CDBS-5178\n    \n- CDBS-5174\n    \n- CDBS-395\n    \n- CDBS-381\n    \n- CDBS-377"
+			},
+			"response": []
+		},
+		{
+			"name": "by",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"file_created\": [\r",
+							"        \"Subiste<br>\",\r",
+							"        \"You upload\",\r",
+							"        \"Você enviou:<br>\",\r",
+							"\r",
+							"        \"Creaste<br>\",\r",
+							"        \"You created\",\r",
+							"        \"Você criou<br>\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_changed\": [\r",
+							"        \"Cambiaste<br>\",\r",
+							"        \"You changed\",\r",
+							"        \"Você modificou<br>\",\r",
+							"\r",
+							"        \"{user} cambió<br>{file}\",\r",
+							"        \"{user} changed {file}\",\r",
+							"        \"{user} modificou<br>{file}\",\r",
+							"\r",
+							"        \"Renombraste<br>{oldfile} como {newfile}\",\r",
+							"        \"You renamed {oldfile} to {newfile}\",\r",
+							"        \"Você renomeou<br>{oldfile} para {newfile}\",\r",
+							"\r",
+							"        \"Has hecho<br>de {oldfile} un elemento oculto\",\r",
+							"        \"You have made from {oldfile} a hidden file\",\r",
+							"        \"Você fez<br>da {oldfile} um elemento oculto\",\r",
+							"        \"Has hecho<br>de {newfile} un elemento visible\",\r",
+							"        \"You have made from {newfile} a visible file\",\r",
+							"        \"Você fez<br>da {newfile} um elemento visível\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_moved\": [\r",
+							"        \"Moviste<br>{oldfile} a {newfile}\",\r",
+							"        \"You moved {oldfile} to {newfile}\",\r",
+							"        \"Você moveu<br>{oldfile} para {newfile}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_deleted\": [\r",
+							"        \"Moviste a papelera<br>\",\r",
+							"        \"You deleted\",\r",
+							"        \"Você mudou para o lixo<br>\",\r",
+							"    ],\r",
+							"\r",
+							"    \"file_restored\": [\r",
+							"        \"Restauraste<br>\",\r",
+							"        \"You restored {file}\",\r",
+							"        \"Você restaurou<br>{file}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"comments\": [\r",
+							"        \"Comentaste en <br>{file}\",\r",
+							"        \"You commented on {file}\",\r",
+							"        \"Você comentou sobre\"\r",
+							"    ],\r",
+							"    \r",
+							"    \"favorite\": [\r",
+							"        \"Agregaste a destacados<br>\",\r",
+							"        \"You added {file} to your favorites\",\r",
+							"        \"Você adicionou aos destaques<br>\"\r",
+							"    ],\r",
+							"    \"unfavorite\": [\r",
+							"        \"Eliminaste de destacados<br>\",\r",
+							"        \"You removed {file} from your favorites\",\r",
+							"        \"Você removeu dos destaques<br>\"\r",
+							"    ],\r",
+							"\r",
+							"    \"shared\": [\r",
+							"        \"Eliminaste<br>la liga pública de {file}\",\r",
+							"        \"You removed public link for {file}\",\r",
+							"        \"Você excluiu<br>o link publico de {file}\",\r",
+							"\r",
+							"        \"Compartiste<br>{file} como una liga pública\",\r",
+							"        \"You shared {file} as public link\",\r",
+							"        \"Você compartilhou<br>{file} como um link publico\",\r",
+							"\r",
+							"        \"La liga pública<br>para {file} ha expirado\",\r",
+							"        \"Public link expired for {file}\",\r",
+							"        \"O link público<br>de {file} expirou\",\r",
+							"    ],\r",
+							"\r",
+							"    \"remote_share\": [\r",
+							"        \"Recibiste<br>un nuevo elemento compartido remoto {file} de {user}\",\r",
+							"        \"You received a new remote share {file} from {user}\",\r",
+							"        \"Você recebeu<br>um novo compartilhamento remoto {file} de {user}\",\r",
+							"\r",
+							"        \"{user} declined the remote share of {file}\",\r",
+							"        \"{user} declinou<br>do compartilhamento remoto de {file}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"public_links\": [\r",
+							"        \"Se descargó por liga pública<br>{file}\",\r",
+							"        \"{file} downloaded via public link\",\r",
+							"        \"Foi baixado pelo link público<br>{file}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"personal_settings\": [\r",
+							"        \"Cambiaste tu nombre de usuario\",\r",
+							"        \"You changed your display name\",\r",
+							"        \"Você mudou seu nome de usuário\",\r",
+							"\r",
+							"        \"Cambiaste tu dirección de correo electrónico\",\r",
+							"        \"Cambiaste tu contraseña\"\r",
+							"    ],\r",
+							"    \r",
+							"    \"security\": [\r",
+							"        \"Eliminaste inicio de sesión activo \\\"{token}\\\"\",\r",
+							"        \"Renombraste un inicio de sesión activo\"\r",
+							"    ]\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/by?format=json&previews=true&limit=50&since=0",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"by"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "50"
+						},
+						{
+							"key": "since",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes del usuario, relacionadas con las actividades realizadas por otros usuarios.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3286991257/GET+ocs+v2.php+apps+amx+activity+api+v1+activity+by+By+activities)\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-5173\n- CDBS-5167\n- CDBS-5155\n- CDBS-393"
+			},
+			"response": []
+		},
+		{
+			"name": "filter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"personal_settings\": [\r",
+							"        \"Cambiaste tu nombre de usuario\",\r",
+							"        \"You changed your display name\",\r",
+							"        \"Você mudou seu nome de usuário\",\r",
+							"\r",
+							"        \"Cambiaste tu dirección de correo electrónico\",\r",
+							"        \"Cambiaste tu contraseña\"\r",
+							"    ],\r",
+							"    \r",
+							"    \"security\": [\r",
+							"        \"Eliminaste inicio de sesión activo \\\"{token}\\\"\",\r",
+							"        \"Renombraste un inicio de sesión activo\"\r",
+							"    ]\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "type",
+							"value": "file_changed",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "type",
+							"value": "comments",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/filter?format=json&previews=false&limit=40&sort=asc&object_type=files",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"filter"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "false"
+						},
+						{
+							"key": "limit",
+							"value": "40"
+						},
+						{
+							"key": "sort",
+							"value": "asc",
+							"description": "Can be asc or desc"
+						},
+						{
+							"key": "object_type",
+							"value": "files"
+						},
+						{
+							"key": "since",
+							"value": "00001",
+							"disabled": true
+						},
+						{
+							"key": "object_id",
+							"value": "00000",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes del usuario, relacionadas con un archivo en específico.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3288072245/GET+ocs+v2.php+apps+amx+activity+api+v1+activity+filter+Activities+of+a+specific+file)\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-5241\n- CDBS-5240\n- CDBS-5239\n- CDBS-5236\n- CDBS-5235\n- CDBS-5234\n- CDBS-5233\n- CDBS-5232\n- CDBS-375\n- CDBS-345\n- CDBS-344"
+			},
+			"response": []
+		},
+		{
+			"name": "all",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"file_created\": [\r",
+							"        \"Subiste<br>\",\r",
+							"        \"You upload\",\r",
+							"        \"Você enviou:<br>\",\r",
+							"\r",
+							"        \"Creaste<br>\",\r",
+							"        \"You created\",\r",
+							"        \"Você criou<br>\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_changed\": [\r",
+							"        \"Cambiaste<br>\",\r",
+							"        \"You changed\",\r",
+							"        \"Você modificou<br>\",\r",
+							"\r",
+							"        \"{user} cambió<br>{file}\",\r",
+							"        \"{user} changed {file}\",\r",
+							"        \"{user} modificou<br>{file}\",\r",
+							"\r",
+							"        \"Renombraste<br>{oldfile} como {newfile}\",\r",
+							"        \"You renamed {oldfile} to {newfile}\",\r",
+							"        \"Você renomeou<br>{oldfile} para {newfile}\",\r",
+							"\r",
+							"        \"Has hecho<br>de {oldfile} un elemento oculto\",\r",
+							"        \"You have made from {oldfile} a hidden file\",\r",
+							"        \"Você fez<br>da {oldfile} um elemento oculto\",\r",
+							"        \"Has hecho<br>de {newfile} un elemento visible\",\r",
+							"        \"You have made from {newfile} a visible file\",\r",
+							"        \"Você fez<br>da {newfile} um elemento visível\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_moved\": [\r",
+							"        \"Moviste<br>{oldfile} a {newfile}\",\r",
+							"        \"You moved {oldfile} to {newfile}\",\r",
+							"        \"Você moveu<br>{oldfile} para {newfile}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_deleted\": [\r",
+							"        \"Moviste a papelera<br>\",\r",
+							"        \"You deleted\",\r",
+							"        \"Você mudou para o lixo<br>\",\r",
+							"    ],\r",
+							"\r",
+							"    \"file_restored\": [\r",
+							"        \"Restauraste<br>\",\r",
+							"        \"You restored {file}\",\r",
+							"        \"Você restaurou<br>{file}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"comments\": [\r",
+							"        \"Comentaste en <br>{file}\",\r",
+							"        \"You commented on {file}\",\r",
+							"        \"Você comentou sobre\"\r",
+							"    ],\r",
+							"    \r",
+							"    \"favorite\": [\r",
+							"        \"Agregaste a destacados<br>\",\r",
+							"        \"You added {file} to your favorites\",\r",
+							"        \"Você adicionou aos destaques<br>\"\r",
+							"    ],\r",
+							"    \"unfavorite\": [\r",
+							"        \"Eliminaste de destacados<br>\",\r",
+							"        \"You removed {file} from your favorites\",\r",
+							"        \"Você removeu dos destaques<br>\"\r",
+							"    ],\r",
+							"\r",
+							"    \"shared\": [\r",
+							"        \"Eliminaste<br>la liga pública de {file}\",\r",
+							"        \"You removed public link for {file}\",\r",
+							"        \"Você excluiu<br>o link publico de {file}\",\r",
+							"\r",
+							"        \"Compartiste<br>{file} como una liga pública\",\r",
+							"        \"You shared {file} as public link\",\r",
+							"        \"Você compartilhou<br>{file} como um link publico\",\r",
+							"\r",
+							"        \"La liga pública<br>para {file} ha expirado\",\r",
+							"        \"Public link expired for {file}\",\r",
+							"        \"O link público<br>de {file} expirou\",\r",
+							"    ],\r",
+							"\r",
+							"    \"remote_share\": [\r",
+							"        \"Recibiste<br>un nuevo elemento compartido remoto {file} de {user}\",\r",
+							"        \"You received a new remote share {file} from {user}\",\r",
+							"        \"Você recebeu<br>um novo compartilhamento remoto {file} de {user}\",\r",
+							"\r",
+							"        \"{user} declined the remote share of {file}\",\r",
+							"        \"{user} declinou<br>do compartilhamento remoto de {file}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"public_links\": [\r",
+							"        \"Se descargó por liga pública<br>{file}\",\r",
+							"        \"{file} downloaded via public link\",\r",
+							"        \"Foi baixado pelo link público<br>{file}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"personal_settings\": [\r",
+							"        \"Cambiaste tu nombre de usuario\",\r",
+							"        \"You changed your display name\",\r",
+							"        \"Você mudou seu nome de usuário\",\r",
+							"\r",
+							"        \"Cambiaste tu dirección de correo electrónico\",\r",
+							"        \"Cambiaste tu contraseña\"\r",
+							"    ],\r",
+							"    \r",
+							"    \"security\": [\r",
+							"        \"Eliminaste inicio de sesión activo \\\"{token}\\\"\",\r",
+							"        \"Renombraste un inicio de sesión activo\"\r",
+							"    ]\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/all?format=json&previews=true&limit=50&since=0",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"all"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "50"
+						},
+						{
+							"key": "since",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes del usuario.\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-5175\n    \n- CDBS-5186\n    \n- CDBS-5187\n    \n- CDBS-5188\n    \n- CDBS-5189\n    \n- CDBS-5763\n    \n- CDBS-5771\n    \n- CDBS-5785\n    \n- CDBS-5786\n    \n- CDBS-5787\n    \n- CDBS-5788\n    \n- CDBS-5789"
+			},
+			"response": []
+		},
+		{
+			"name": "comments",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"comments\": [\r",
+							"        \"Comentaste en <br>{file}\",\r",
+							"        \"You commented on {file}\",\r",
+							"        \"Você comentou sobre\"\r",
+							"    ]\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/comments?format=json&previews=true&limit=50&since=0",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "50"
+						},
+						{
+							"key": "since",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes del usuario, relacionadas con los comentarios de un elemento en específico.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3288137805/GET+ocs+v2.php+apps+amx+activity+api+v1+activity+comments+Comments+activities+.)\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-5164"
+			},
+			"response": []
+		},
+		{
+			"name": "files",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"file_created\": [\r",
+							"        \"Subiste<br>\",\r",
+							"        \"You upload\",\r",
+							"        \"Você enviou:<br>\",\r",
+							"\r",
+							"        \"Creaste<br>\",\r",
+							"        \"You created\",\r",
+							"        \"Você criou<br>\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_changed\": [\r",
+							"        \"Cambiaste<br>\",\r",
+							"        \"You changed\",\r",
+							"        \"Você modificou<br>\",\r",
+							"\r",
+							"        \"{user} cambió<br>{file}\",\r",
+							"        \"{user} changed {file}\",\r",
+							"        \"{user} modificou<br>{file}\",\r",
+							"\r",
+							"        \"Renombraste<br>{oldfile} como {newfile}\",\r",
+							"        \"You renamed {oldfile} to {newfile}\",\r",
+							"        \"Você renomeou<br>{oldfile} para {newfile}\",\r",
+							"\r",
+							"        \"Has hecho<br>de {oldfile} un elemento oculto\",\r",
+							"        \"You have made from {oldfile} a hidden file\",\r",
+							"        \"Você fez<br>da {oldfile} um elemento oculto\",\r",
+							"        \"Has hecho<br>de {newfile} un elemento visible\",\r",
+							"        \"You have made from {newfile} a visible file\",\r",
+							"        \"Você fez<br>da {newfile} um elemento visível\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_moved\": [\r",
+							"        \"Moviste<br>{oldfile} a {newfile}\",\r",
+							"        \"You moved {oldfile} to {newfile}\",\r",
+							"        \"Você moveu<br>{oldfile} para {newfile}\"\r",
+							"    ],\r",
+							"\r",
+							"    \"file_deleted\": [\r",
+							"        \"Moviste a papelera<br>\",\r",
+							"        \"You deleted\",\r",
+							"        \"Você mudou para o lixo<br>\",\r",
+							"    ],\r",
+							"\r",
+							"    \"file_restored\": [\r",
+							"        \"Restauraste<br>\",\r",
+							"        \"You restored {file}\",\r",
+							"        \"Você restaurou<br>{file}\"\r",
+							"    ]\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/files?format=json&previews=true&limit=50&since=0",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"files"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "50"
+						},
+						{
+							"key": "since",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes del usuario, relacionadas con todos los archivos del buzón.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3288137790/GET+ocs+v2.php+apps+amx+activity+api+v1+activity+files+File+changes+activities+.)\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-5793\n- CDBS-5792\n- CDBS-5791\n- CDBS-5790\n- CDBS-5178\n- CDBS-5174\n- CDBS-5166\n- CDBS-5163"
+			},
+			"response": []
+		},
+		{
+			"name": "files_favorites",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json()\r",
+							"\r",
+							"// El servidor responde con un código HTTP 200\r",
+							"pm.test(\"Código de estado es 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"// Validar la estructura de la respuesta, relativa a la documentación\r",
+							"pm.test(\"La respuesta tiene la estructura esperada\", function() {\r",
+							"    pm.expect(jsonData.ocs.meta.status).to.eql(\"ok\")\r",
+							"    pm.expect(jsonData.ocs.meta.statuscode).to.eql(200)\r",
+							"    pm.expect(jsonData.ocs.meta.message).to.eql(\"OK\")\r",
+							"})\r",
+							"\r",
+							"/* Conjunto de todas las actividades que podemos esperar, recopiladas de las respuestas de\r",
+							" los servicios de amx_activity. Es muy probable que falten actividades, ya que hay accciones que\r",
+							" ni siquiera están documentadas en Confluence o en los mismos casos de prueba. Además, sí se\r",
+							" contemplan aquí algunas frases en los otros idiomas disponibles de Claro drive (inglés y portugés),\r",
+							" pero están todavía más incompletas que las que están en español.\r",
+							" El equipo de Análisis no pudo conseguirnos las cadenas de texto completas. */\r",
+							"const activities = {\r",
+							"    \"favorite\": [\r",
+							"        \"Agregaste a destacados<br>\",\r",
+							"        \"You added {file} to your favorites\",\r",
+							"        \"Você adicionou aos destaques<br>\"\r",
+							"    ],\r",
+							"    \"unfavorite\": [\r",
+							"        \"Eliminaste de destacados<br>{file}\",\r",
+							"        \"You removed {file} from your favorites\",\r",
+							"        \"Você removeu dos destaques<br>\"\r",
+							"    ]\r",
+							"}\r",
+							"\r",
+							"let presentActivities = {} // Almacenar aquí las actividades que devolvió el servicio\r",
+							"Object.keys(activities).forEach(activityType => presentActivities[activityType] = []) // Agruparlas por tipo de actividad\r",
+							"Object.keys(activities).forEach(activityType => {\r",
+							"    jsonData.ocs.data.forEach((activity) => {\r",
+							"        if (activity.type == activityType) presentActivities[activityType].push(activity)\r",
+							"    })\r",
+							"})\r",
+							"\r",
+							"/* Comparar cadena de texto devuelta por el servicio con las esperadas.\r",
+							"Los tests de Postman se realizan agrupando por tipo esperado. Se compara si la cadena devuelta\r",
+							"por el servicio inicia con alguna de las respuestas esperadas. Con una sola cadena que no coincida\r",
+							"con lo esperado, el test fallará. Si no hay actividades de cierto tipo, ese test se omitirá. */\r",
+							"Object.keys(presentActivities).forEach(activityType => {\r",
+							"    if (presentActivities[activityType].length > 0) {\r",
+							"        pm.test(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado`, function() {\r",
+							"            presentActivities[activityType].forEach(activity => {\r",
+							"                let expectArray = activities[activity.type]\r",
+							"                pm.expect(activity.subject_rich[0]).to.be.a(\"string\").and.satisfy(subject => expectArray.some(expect => subject.startsWith(expect)))\r",
+							"            })\r",
+							"        })\r",
+							"    } else {\r",
+							"        pm.test.skip(`Las actividades de tipo \"${activityType}\" tienen el parámetro subject_rich esperado - No hay actividades de este tipo en la respuesta`)\r",
+							"    }\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "OCS-APiRequest",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{instance}}/ocs/v2.php/apps/amx_activity/api/v1/activity/files_favorites?format=json&previews=true&limit=50&since=0",
+					"host": [
+						"{{instance}}"
+					],
+					"path": [
+						"ocs",
+						"v2.php",
+						"apps",
+						"amx_activity",
+						"api",
+						"v1",
+						"activity",
+						"files_favorites"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						},
+						{
+							"key": "previews",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "50"
+						},
+						{
+							"key": "since",
+							"value": "0"
+						}
+					]
+				},
+				"description": "Obtener un arreglo con todas las actividades recientes relacionadas con los elementos destacados del usuario.\n\n[Confluence](https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/3286991359/GET+ocs+v2.php+apps+amx+activity+api+v1+activity+files+favorites+Favorites+activities+.)\n\nPresente en los siguientes casos de prueba:\n\n- CDBS-386\n- CDBS-385"
+			},
+			"response": []
+		}
+	]
+}
