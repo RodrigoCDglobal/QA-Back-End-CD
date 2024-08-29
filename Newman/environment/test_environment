@@ -1,0 +1,123 @@
+{
+	"id": "bf3cdaba-8e7c-49ea-95ac-c9423dc43092",
+	"name": "TEST",
+	"values": [
+		{
+			"key": "portal",
+			"value": "https://test-portal.clarodrive.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "instance",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "collabora",
+			"value": "https://test-collabora.clarodrive.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "MW",
+			"value": "https://test-middleware.clarodrive.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "HOST",
+			"value": "https://test-lookup.clarodrive.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "USER_ID",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "CSRF",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "ACCOUNTS",
+			"value": "{\"test-0000\":{\"username\":\"nue7@getnada.com\",\"password\":\"Qa654321Qa\"},\"test-0001\":{\"username\":\"ereillyt_y82u@vixej.com\",\"password\":\"Qa654321$\"}}",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "USER_ENCODED",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "FILE",
+			"value": "sample.txt",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "USER_PLAN_ID",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "HKS",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "CD_USER",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "JWT_BACKEND_AUTH",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "DUMMY_FILE_NAME",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "DUMMY_FILE_ID",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "DUMMY_FILES_FOLDER_ID",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "DUMMY_FILES_IDS",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "commentId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-06-06T22:46:21.741Z",
+	"_postman_exported_using": "Postman/11.1.14"
+}

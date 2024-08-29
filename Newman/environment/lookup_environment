@@ -1,0 +1,37 @@
+{
+	"id": "e21ff5ff-f53d-4e22-878e-f440ab36789a",
+	"name": "LOOKUP",
+	"values": [
+		{
+			"key": "SERVER",
+			"value": "https://test-lookup.clarodrive.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "X-AMXAUTH",
+			"value": "wiuafgiouawegizraweigriuawer",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "SUPERVISOR.USERNAME",
+			"value": "supervisor_test",
+			"enabled": true
+		},
+		{
+			"key": "SUPERVISOR.PASSWORD",
+			"value": "Qa654321$",
+			"enabled": true
+		},
+		{
+			"key": "SUPERVISOR.AUTH_COOKIE",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-06-06T22:46:35.099Z",
+	"_postman_exported_using": "Postman/11.1.14"
+}

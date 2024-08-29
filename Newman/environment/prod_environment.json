@@ -1,0 +1,114 @@
+{
+  "_": {
+    "postman_variable_scope": "environment",
+    "postman_exported_at": "2024-08-28T15:10:11.008Z",
+    "postman_exported_using": "Newman/6.1.2"
+  },
+  "id": "73d1b911-38fa-4850-b26f-1cad6f1b32f9",
+  "name": "PROD",
+  "values": [
+    {
+      "type": "any",
+      "value": "https://www.clarodrive.com",
+      "key": "portal"
+    },
+    {
+      "type": "any",
+      "value": "https://i0000.clarodrive.com",
+      "key": "instance"
+    },
+    {
+      "type": "any",
+      "value": "https://collabora.clarodrive.com",
+      "key": "collabora"
+    },
+    {
+      "type": "any",
+      "value": "https://middleware.clarodrive.com",
+      "key": "MW"
+    },
+    {
+      "type": "any",
+      "value": "https://lookup.clarodrive.com",
+      "key": "HOST"
+    },
+    {
+      "type": "any",
+      "value": "603817739854bf169a44135d",
+      "key": "USER_ID"
+    },
+    {
+      "type": "any",
+      "value": "CSeJp2JGCapTOy8IMN0bi0+HEQeI398v4JbZkr3497g=:PFDqlRI0auwhDABpZ+1txzrmIVLSnrRLmLms5vmUxug=",
+      "key": "CSRF"
+    },
+    {
+      "type": "any",
+      "value": "{\n    \"i0000\":\n        {\"username\":\"acpn6.1@getnada.com\",\"password\":\"Qa654321$\"},\n    \"i0001\":\n        {\"username\":\"cdi001prog@gmail.com\",\"password\":\"Test.1234\"},\n    \"i0002\":\n        {\"username\":\"colik91073@fenwazi.com\",\"password\":\"Qa654321\"},\n    \"i0003\":\n        {\"path\":\"/api/v2/auth/login/claronegocio\",\"username\":\"i0003-test-01@getnada.com\",\"password\":\"Qa654321$$\"},\n    \"i0004\":\n        {\"username\":\"diego11@getnada.com\",\"password\":\"Qa654321\"},\n    \"i0005\":\n        {\"username\":\"hlynchn_d533p@vixej.com\",\"password\":\"Qa654321\"},\n    \"i0006\":\n    {\"path\":\"/api/v2/auth/login/claronegocio\",\"username\":\"prd_qa_06_05@mailinator.com\",\"password\":\"Qa654321$$\"}\n}",
+      "key": "ACCOUNTS"
+    },
+    {
+      "type": "any",
+      "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiI2MDM4MTc3Mzk4NTRiZjE2OWE0NDEzNWQiLCJwcm92aWRlciI6ImVtYWlsIiwidXBkYXRlYWJsZSI6dHJ1ZSwiY291bnRyeSI6Ik1YIiwiaXNGYW1pbHlQbGFuR3Vlc3QiOmZhbHNlLCJzZXNzaW9uIjoiKG1nVHhFMVR5QnN6XC9ieDdSVmJuU0ptNGdTMjhmTURqUG1jUXFuanhIV0IwPSkiLCJleHAiOjE4NTEwODkwNzUsIm5ldyI6ZmFsc2UsImVtYWlsIjoiYWNwbjYuMUBnZXRuYWRhLmNvbSIsImVtYWlsSGFzaGVkIjoiOWYyMTc1MGViMGY1YzQyNjc0MjA1OGQ3NzMwN2Y3OGQzYzQ3OWUzOWQ0YzdkOWQ2NWY3NjU0ZjBmMDg1MGEwYiIsImRpc3BsYXluYW1lIjoiTm9tYnJlIEFwZWxsaWRvIiwicGhvbmUiOmZhbHNlLCJsYW5ndWFnZSI6ImVzX01YIiwicXVvdGEiOiIyMDBHIiwiZ2F0ZXdheSI6ImNsYXJvcGFnb3NnYXRlIiwiaW5zdGFuY2UiOiJodHRwczpcL1wvaTAwMDAuY2xhcm9kcml2ZS5jb21cLyJ9.3J7m52SnB0ifkm9snbDyZ0LmKS_ALU_e6gKFkRM7I6w",
+      "key": "USER_ENCODED"
+    },
+    {
+      "type": "any",
+      "value": "folder/file.txt",
+      "key": "FILE"
+    },
+    {
+      "type": "any",
+      "value": "139",
+      "key": "USER_PLAN_ID"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "CD_USER"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "HKS"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "JWT_BACKEND_AUTH"
+    },
+    {
+      "type": "any",
+      "value": "Ejemplo de archivo TXT.txt",
+      "key": "DUMMY_FILE_NAME"
+    },
+    {
+      "type": "any",
+      "value": 3816950899,
+      "key": "DUMMY_FILES_FOLDER_ID"
+    },
+    {
+      "type": "any",
+      "value": 3816952150,
+      "key": "DUMMY_FILE_ID"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "commentId"
+    },
+    {
+      "type": "any",
+      "value": "",
+      "key": "it"
+    },
+    {
+      "type": "any",
+      "value": "[3816952033,3816952105,3816952015,3816952066,3816952150,3816950947]",
+      "key": "DUMMY_FILES_IDS"
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2024-08-28T15:24:40.115Z",
+  "_postman_exported_using": "Newman/6.1.2"
+}
