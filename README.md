@@ -29,8 +29,9 @@ Por favor, asegúrate de utilizar el ambiente adecuado según el tipo de prueba 
 Encuentra la documentación relevante en los siguientes enlaces:
 
 - **Documentación del Proyecto:** 📘
-    - Documentación a pruebas de rendimiento:
+    - Documentación a pruebas de rendimiento: https://docs.google.com/document/d/1VkuJEanFyLtYs-JHLuZFqAFaA0Griq9TfLWWt7t7Rlc/edit?usp=sharing
     - Documentación de integración de postman con newman: https://docs.google.com/document/d/1lyagp6rzgSDPvjBN3p4NLaS6dMBVBuzNC3iXq5I3rn0/edit?usp=sharing
+    - Documentación de uso de newman con Jenkins: https://docs.google.com/document/d/15-MHXT8joWByaGZeeXewTubiZH5Wdh0XednHauDU3LM/edit?usp=sharing
 - **Especificaciones de la API:** 📑
     - En el siguiente enlace podrás revisar la documentación de las APIs que se tienen: https://dlatvarg.atlassian.net/wiki/spaces/CB/pages/1186726514/3+Nextcloud
 - **Guía de Instalación y Configuración:** ⚙️
