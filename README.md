@@ -30,6 +30,7 @@ Encuentra la documentación relevante en los siguientes enlaces:
 
 - **Documentación del Proyecto:** 📘
     - Enlace de CD donde encontrarás todas la matrices de Escenarios y Casos de prueba divididas por end point: https://cdrive.page.link/hCE4cou4rxQywL1V9
+    - Documentación de como encontrar cada end point desde el front end: https://docs.google.com/document/d/10omewXV3-qbdMGggONaaYbCA0dkFNQmj-DHSDI1JW64/edit?usp=sharing
     - Documentación a pruebas de rendimiento: https://docs.google.com/document/d/1VkuJEanFyLtYs-JHLuZFqAFaA0Griq9TfLWWt7t7Rlc/edit?usp=sharing
     - Documentación de integración de postman con newman: https://docs.google.com/document/d/1lyagp6rzgSDPvjBN3p4NLaS6dMBVBuzNC3iXq5I3rn0/edit?usp=sharing
     - Documentación de uso de newman con Jenkins: https://docs.google.com/document/d/15-MHXT8joWByaGZeeXewTubiZH5Wdh0XednHauDU3LM/edit?usp=sharing
