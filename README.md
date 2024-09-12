@@ -1,4 +1,4 @@
-# 🌟 Bienvenida al Repositorio de QA de Backend
+# 🌟 Bienvenido al Repositorio de QA de Backend
 
 ¡Bienvenidos al repositorio del equipo de QA de backend! Este repositorio está destinado a coordinar y documentar nuestras actividades de aseguramiento de la calidad para los servicios backend. Aquí encontrarás información esencial para llevar a cabo tus tareas de prueba, así como enlaces a recursos clave.
 
