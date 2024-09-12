@@ -20,7 +20,7 @@ Este repositorio contiene todos los recursos y documentos necesarios para realiz
 Aquí están los enlaces a los diferentes ambientes donde se realizan las pruebas:
 
 - **Ambiente de pruebas:** https://test-portal.clarodrive.com/ 🔬
-- **Ambiente de Producción:** https://test-portal.clarodrive.com/ 🚀
+- **Ambiente de Producción:** clarodrive.com 🚀
 
 Por favor, asegúrate de utilizar el ambiente adecuado según el tipo de prueba que estás realizando.
 
